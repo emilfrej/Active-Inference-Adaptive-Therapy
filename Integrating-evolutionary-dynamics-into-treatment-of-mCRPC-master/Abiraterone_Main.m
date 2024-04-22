@@ -12,7 +12,7 @@ matrixCoefficients = [0.7,0.9,0.4,0.6,0.5,0.8;0.7,0.8,0.4,0.6,0.5,0.9;0.6,0.9,0.
 
 %% Set matrixIndex = 7 for Representative patient #1
 %% Set matrixInded = 5 for Representative patient #2
-matrixIndex = 5;
+matrixIndex = 7;
 
 
 %% Choose Abiraterone treatment type by uncommenting one line below.
@@ -20,9 +20,7 @@ matrixIndex = 5;
 % treatmentType = 'None';
 % treatmentType = 'SOC';
 % treatmentType = 'Metronomic';
-% treatmentType = 'Adaptive';
-
-
+treatmentType = 'Adaptive';
 
 
 
@@ -47,9 +45,6 @@ y0 = ESS(matrixIndex, :) .* 0.4;
 maxSimulationTime = 10000;
 
 
-
-
-
 %% Design treatment
 %% ----------------
 
@@ -71,7 +66,7 @@ while y(4) < PSA_zenith
     % T+, TP, T-, and PSA ODE's
     dydt = zeros(1, 4);
     
-    dydt(1) = y(1) * r(1) * (1 - ( ( y(1) + matrixCoefficients(matrixIndex,1) * y(2) + matrixCoefficients(matrixIndex,2) * y(3) ) / k(1) ) );
+    dydt(1) = y(1) * r(1) * (1 - w( ( y(1) + matrixCoefficients(matrixIndex,1) * y(2) + matrixCoefficients(matrixIndex,2) * y(3) ) / k(1) ) );
     dydt(2) = y(2) * r(2) * (1 - ( ( matrixCoefficients(matrixIndex,3) * y(1) + y(2) + matrixCoefficients(matrixIndex,4) * y(3) ) / k(2) ) );
     dydt(3) = y(3) * r(3) * (1 - ( ( matrixCoefficients(matrixIndex,5) * y(1) + matrixCoefficients(matrixIndex,6) * y(2) + y(3) ) / k(3) ) );
     dydt(4) = sum(y(1:3)) - sigmaPSA * y(4);
