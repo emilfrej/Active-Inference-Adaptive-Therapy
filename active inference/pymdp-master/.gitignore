@@ -1,0 +1,11 @@
+*.pyc
+__pycache__
+.DS_Store
+.ipynb_checkpoints
+.rope*
+.vscode/
+.ipynb_checkpoints/
+.pytest_cache
+env/
+pymdp.egg-info
+inferactively_pymdp.egg-info
