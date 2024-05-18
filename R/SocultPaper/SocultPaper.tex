@@ -236,6 +236,72 @@ conferencereport & reply & tutorial\\
 
 \section{Introduction}\label{introduction}
 
+\subsection{POMDP}\label{pomdp}
+
+\subsection{Simulation details}\label{simulation-details}
+
+The simulated enviroment features discretized of planning cancer
+treatments. At each timestep a ``cancer state'' has a certain risk of
+increasing. If the tumor ever reaches the state 5, the simulation ends.
+To avoid this, a model has decide when to apply treatment. Applying
+treatment can reduce the tumor level - whether the treatment succesfully
+reduces the ``cancer state'' depends on a underlying \emph{resistance
+state}. When the resistance is low, the chance of treatment succeeding
+is high, but probability declines as the resistance state increase. The
+resistance state has fixed probability of increasing when treatment is
+applied, and it can decrease when treatment is withdrawn. Whether the
+resistance state decreases depends on the tumor level. At high tumor
+levels, the resistance state is more likely to decrease, but thiscarries
+the risk of tumor growing out of control and ``killing the patient''. In
+order to succesfully manage the disease, a model will therefore also
+have to manage the resistance state. However, the resistance state is
+directly orbserable in the given simulation. It must therefore be
+inferred from how the tumor state responds to treatment.
+
+Both the resistance state, and tumor states start at state 0 out of 5,
+meaning that a total is six states are possible in each. Two slightly
+different simulations are used:
+
+\begin{itemize}
+\item
+  Performance simulation, where a range-bounded approach to managing the
+  tumor is used, where the treatment is begun each time the tumor state
+  increases above level 3, and is withdrawn when the tumor state drops
+  below 2. 100 runs at 4 different probabilities of increasing the tumor
+  state is run for maximally 200 timesteps. For each run, vectors of
+  outcomes are pregenerated, meaning that vector of whether the tumor
+  increases of length 200 is predetermined where each entry has the
+  probability specified for the entire simulation. Likewise vectors are
+  generated for treatment outcomes at each resistance level, and
+  outcomes for resistance drops. This is done to ensure comparibility
+  between the range-bounded approach and POMDP models that consider
+  different future outcomes at different lengths. In these runs the
+  tumor state is perfectly observable, meaning a tumor state always
+  generates tumor observation that corresponds to hidden factor. The
+  POMPD can only observe the tumor level, and its prior preferences are
+  uniform over all tumor states except for the highest. These POMPDS
+  only consider a combination of policies at each timestep. They can
+  only consider treating or not treating for three timesteps in a row.
+  The shortest horizon model only considers one of these blocks, while
+  the medium considers two blocks of treating or not treating, for total
+  horizon of 6 steps into the future. The longest horizon model
+  considers three blocks for a total of 9 steps into the future. This is
+  done to ease the computational burden, since it greatly reduces the
+  total number of policies to be evaluated.
+\item
+  In the capacities simulation, a single run of a POMDP with a slightly
+  different model structure is used. This model can observes a perfect
+  signal of whether the patients is alive, whether the model is testing,
+  treating and a noised signal of the tumor state if the model has
+  decided to test the patient on the given run. Its prior preferences
+  are heavily skewed against observing a dead patient, somewhat against
+  treating and little against treating. This means that it will have to
+  balance the ``cost'' of all these actions''. It is also handicapped
+  further by the fact that the tumor signal is noised, and the
+  resistance state, which must be inferred through the tumor signal is
+  therefore doubly obfuscated.
+\end{itemize}
+
 \section{Results}\label{results}
 
 \subsection{Performance of POMDPs vs ADT
@@ -265,18 +331,74 @@ longest policy horizon performed as follows.
 
 \includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-3-1.pdf}
 
-At more aggressive cancer rates, the simulation shows consistently
-better performance of the POMDP model. It
+At more aggressive cancer rates, the simulation consistently to
+outperform the range bounded approach. The absoulute increase in
+timesteps decreases however.
 
 \subsection{Capabilities}\label{capabilities}
 
 \subsubsection{Learning underlying hidden
 state}\label{learning-underlying-hidden-state}
 
-A probable cause of the performance increase seen in the POMDP
+The POMDP structure is capable of inferring an underlying hidden state:
+the resistance state. Even though this not directly observable, this can
+be inferred to how the tumor state responds to treatment. Applying
+treatment for longer time without any beneficial effect would suggest
+that the resistance level is high, while immediately observing that the
+tumor level decreases would suggest that the resistance level is low. At
+each timestep the POMDPs perform infer the most likely state of every
+state factor, given their current observation and prior beliefs. Through
+custom changes to the `get\_expected\_states' function in PYMDP that
+allowed the models to consider how one hidden state factor (resistance
+factor) would influence another (the tumor factor).
 
-\subsubsection{Beliefs, current/future and unceartainty is
-accessible}\label{beliefs-currentfuture-and-unceartainty-is-accessible}
+\includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+The above plot shows the strength of beliefs in t probabilities for a
+subset of timesteps {[}30 - 34{]}, and the red dot show the actual the
+resistance levels. A time progresses the resistance level increases, and
+the model adjusts its beliefs. While the tumor level doesn't increase
+durings this time\_period, this would also signal the model that the
+resistance level is low. This is the case since the enviroment always
+has change of increasing the tumor state, but such an increase would be
+negated by succesful round of treatment.
+
+\includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+The entire run is plotted for the given. Only the tumor level is
+observable to the POMDP. It must combine its knowledge about how
+resistance level likely increases after applying treatment, and how the
+tumor level responds to treatment depenping on the the resistance level.
+While the model far from perfectly knows the resistance level. Model
+beliefs for the entire run is plotted.
+
+\includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+The model begins fairly agnostic. Given that the model was initialized
+with a uniform prior over resistance states this makes sense. Thorought
+out the course of the simulation it then finds loweer values of
+resistance state more likely.
+
+\subsubsection{Beliefs, current/future and uncertainty is
+accessible}\label{beliefs-currentfuture-and-uncertainty-is-accessible}
+
+This current simulated model used a slightly different implementation
+than those compared to performance of rangebounded therapy planning.
+While the those models had longer policy horizons, they didn't consider
+the entire space possible actions. A model with a shorter policy horizon
+that would instead search every single possible action four steps is
+plotted to investigate the structure of decision-making by the POMDP
+model. The enviroment was also more unceartain. Instead of featuring a
+1-to-1 mapping of the observations of the tumor to actual tumor state,
+it recieved a noised signal. It must therefore. The beliefs about how
+tumor state will evolve as a consequence of the most promising policy at
+time step 14 is plotted, and the expectation of resistance states at
+t=24 is plotted too.
+
+\includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+Dotted vertical lines indicated the timepoint for which the evaluation
+of exepected states are extracted.
 
 \subsubsection{Actions Can be balanced using
 FEP}\label{actions-can-be-balanced-using-fep}
