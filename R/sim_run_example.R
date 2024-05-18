@@ -22,6 +22,9 @@ plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
   guides(fill = guide_legend(title = NULL),
          colour = guide_legend(title = NULL)) +
   
+  #force the resistance level color to black
+  scale_color_manual(values = c("black", "red")) +
+  
   
   
   labs(title = "Tumor and Resistance Level Through Time",
@@ -30,3 +33,4 @@ plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
 
 #save plot 
 ggsave("../visualizations/Tumor_and_Resistance_Levels.png", width = 10, height = 6, units = "in")
+
