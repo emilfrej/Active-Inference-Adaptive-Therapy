@@ -278,13 +278,11 @@ plot
 
 Dotted vertical lines indicated the timepoint for which the evaluation of expected states are extracted.
 
-### Actions Can be balanced using FEP
-
-### FEP components are accessible
-
 # Discussion
 
 ## Does it work for other sorts of medical planning
+
+## FEP components can besued to balance testing and treating
 
 ## Would longer policy search be better
 
