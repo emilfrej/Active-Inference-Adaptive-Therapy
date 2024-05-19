@@ -202,7 +202,7 @@ Both the resistance state, and tumor states start at state 0 out of 5, meaning t
 
 -   In the capacities simulation, a single run of a POMDP with a slightly different model structure is used. This model can observes a perfect signal of whether the patients is alive, whether the model is testing, treating and a noised signal of the tumor state if the model has decided to test the patient on the given run. Its prior preferences are heavily skewed against observing a dead patient, somewhat against treating and little against treating. This means that it will have to balance the "cost" of all these actions". It is also handicapped further by the fact that the tumor signal is noised, and the resistance state, which must be inferred through the tumor signal is therefore doubly obfuscated. The likelihood mapping between however perfectly captures the maps the expected noise.
 
-### Changes to POMDP specification. 
+### Changes to POMDP specification.
 
 Hidden state factors do typically not affect each other at the state level. Instead their interactions are typically modelled as resulting from observations. This setup was deemed inadequate for the current experiment. It necessitated the that generative model could accurately model how the resistance state factor influences the probability of treatment succeeding. This was done in order to accurately portray issue of resistance levels generally being in accessible to current testing methodology and the evolutionary dynamics that are suspected to be at play in reducing resistance in real-world tumors.
 

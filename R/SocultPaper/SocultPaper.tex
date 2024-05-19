@@ -322,18 +322,43 @@ simulations are used:
 \end{itemize}
 
 \subsubsection{Changes to POMDP
-specifications}\label{changes-to-pomdp-specifications}
+specification.}\label{changes-to-pomdp-specification.}
 
-POMDPs are usually specified
+Hidden state factors do typically not affect each other at the state
+level. Instead their interactions are typically modelled as resulting
+from observations. This setup was deemed inadequate for the current
+experiment. It necessitated the that generative model could accurately
+model how the resistance state factor influences the probability of
+treatment succeeding. This was done in order to accurately portray issue
+of resistance levels generally being in accessible to current testing
+methodology and the evolutionary dynamics that are suspected to be at
+play in reducing resistance in real-world tumors.
+
+Accurately modelling how higher tumor levels makes decreases in
+resistance more likely was also crucial. Typically, transition
+probabilties in the generative models are constructed using three
+dimensional ``B-tensors'', which describe expected transition
+probabilties within a state factor: one dimension the current state, one
+dimension for what ever action is chosen and third for the resulting
+state.
+
+For the present project another dimension was added, this dimension
+corresponds to the state of another state factor. Concretely, this meant
+that the tumor state factor had fourth dimension. By matrix
+multiplication the expectation over this fourth dimension is factored
+in. One could choose to view it as there are now as many three
+dimensional b-tensors for the tumor state factor as there are states in
+the resistance factor. Effectively, matrix multiplying these result in a
+probability weighted average of expected tumor transition probabilities,
+i.e.~the expectation. However, it should be noted that it is not trivial
+the order in which states are evaluated and that this must be specified.
+This also resulted in much pymdp functionality breaking, since it was
+presumably built only with three dimensional b-tensors in mind.
 
 \section{Results}\label{results}
 
 \subsection{Performance of POMDPs vs ADT
 heuristic}\label{performance-of-pomdps-vs-adt-heuristic}
-
-\begin{verbatim}
-## [1] "/Users/emilfrej/Desktop/Socult Exam/R"
-\end{verbatim}
 
 \includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-1-1.pdf}
 
@@ -425,7 +450,7 @@ t=24 is plotted too.
 
 \includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf}
 
-Dotted vertical lines indicated the timepoint for which the evaluation
+Dotted vertical lines indicated the time-point for which the evaluation
 of expected states are extracted.
 
 \section{Discussion}\label{discussion}
