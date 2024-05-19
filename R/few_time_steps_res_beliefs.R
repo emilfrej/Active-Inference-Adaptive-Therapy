@@ -14,3 +14,5 @@ plot <- ggplot(few_timesteps_res_data, aes(x = name, y = belief, fill = belief)
   
   #add color scheme 
   labs(title = "Beliefs about Resistance Level", x = "Belief State", y = "Belief")
+
+
