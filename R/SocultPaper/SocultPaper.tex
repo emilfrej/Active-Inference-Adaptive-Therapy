@@ -236,9 +236,23 @@ conferencereport & reply & tutorial\\
 
 \section{Introduction}\label{introduction}
 
-\subsection{POMDP}\label{pomdp}
+\subsection{Why we should POMDPs with FEP for Adaptive cancer
+therapy}\label{why-we-should-pomdps-with-fep-for-adaptive-cancer-therapy}
+
+\subsubsection{What is the adapative cancer
+therapy}\label{what-is-the-adapative-cancer-therapy}
+
+\subsubsection{desired qualities of
+models}\label{desired-qualities-of-models}
+
+\subsubsection{How do POMDPs meet these
+requirements}\label{how-do-pomdps-meet-these-requirements}
+
+\section{Methods}\label{methods}
 
 \subsection{Simulation details}\label{simulation-details}
+
+\subsubsection{Enviroment}\label{enviroment}
 
 The simulated enviroment features discretized of planning cancer
 treatments. At each timestep a ``cancer state'' has a certain risk of
@@ -258,9 +272,13 @@ have to manage the resistance state. However, the resistance state is
 directly orbserable in the given simulation. It must therefore be
 inferred from how the tumor state responds to treatment.
 
+\subsubsection{Sim Runs:}\label{sim-runs}
+
 Both the resistance state, and tumor states start at state 0 out of 5,
-meaning that a total is six states are possible in each. Two slightly
-different simulations are used:
+meaning that a total is six states are possible in each. In both
+simulations, POMDPs transition matricies perfectly reflect the
+transition probabilties of the enviorment. Two slightly different
+simulations are used:
 
 \begin{itemize}
 \item
@@ -299,13 +317,23 @@ different simulations are used:
   balance the ``cost'' of all these actions''. It is also handicapped
   further by the fact that the tumor signal is noised, and the
   resistance state, which must be inferred through the tumor signal is
-  therefore doubly obfuscated.
+  therefore doubly obfuscated. The likelihood mapping between however
+  perfectly captures the maps the expected noise.
 \end{itemize}
+
+\subsubsection{Changes to POMDP
+specifications}\label{changes-to-pomdp-specifications}
+
+POMDPs are usually specified
 
 \section{Results}\label{results}
 
 \subsection{Performance of POMDPs vs ADT
 heuristic}\label{performance-of-pomdps-vs-adt-heuristic}
+
+\begin{verbatim}
+## [1] "/Users/emilfrej/Desktop/Socult Exam/R"
+\end{verbatim}
 
 \includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-1-1.pdf}
 
@@ -398,18 +426,15 @@ t=24 is plotted too.
 \includegraphics{SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf}
 
 Dotted vertical lines indicated the timepoint for which the evaluation
-of exepected states are extracted.
-
-\subsubsection{Actions Can be balanced using
-FEP}\label{actions-can-be-balanced-using-fep}
-
-\subsubsection{FEP components are
-accesible}\label{fep-components-are-accesible}
+of expected states are extracted.
 
 \section{Discussion}\label{discussion}
 
 \subsection{Does it work for other sorts of medical
 planning}\label{does-it-work-for-other-sorts-of-medical-planning}
+
+\subsection{FEP components can besued to balance testing and
+treating}\label{fep-components-can-besued-to-balance-testing-and-treating}
 
 \subsection{Would longer policy search be
 better}\label{would-longer-policy-search-be-better}

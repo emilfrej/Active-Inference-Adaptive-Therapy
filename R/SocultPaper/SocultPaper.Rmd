@@ -153,12 +153,17 @@ knitr::kable(rticles::string_to_table(type, 3),
 
 ```
 
-```{r, setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+
+
+# set the directory to visualizations folder
+
 
 pacman::p_load(tidyverse, ggnewscale)
-
 theme_set(theme_classic())
+
 
 #set colors
 adt_col <- "green"
@@ -177,15 +182,19 @@ contrast_colors <- c("long_vs_adt" = long_col, "medium_vs_adt" = medium_col, "sh
 
 ### What is the adapative cancer therapy
 
-## desired qualities of models
+### desired qualities of models
 
-## How do POMDPs meet these requriements
+### How do POMDPs meet these requirements
 
 # Methods
 
-## Simulation details 
+## Simulation details
+
+### Enviroment
 
 The simulated enviroment features discretized of planning cancer treatments. At each timestep a "cancer state" has a certain risk of increasing. If the tumor ever reaches the state 5, the simulation ends. To avoid this, a model has decide when to apply treatment. Applying treatment can reduce the tumor level - whether the treatment succesfully reduces the "cancer state" depends on a underlying *resistance state*. When the resistance is low, the chance of treatment succeeding is high, but probability declines as the resistance state increase. The resistance state has fixed probability of increasing when treatment is applied, and it can decrease when treatment is withdrawn. Whether the resistance state decreases depends on the tumor level. At high tumor levels, the resistance state is more likely to decrease, but thiscarries the risk of tumor growing out of control and "killing the patient". In order to succesfully manage the disease, a model will therefore also have to manage the resistance state. However, the resistance state is directly orbserable in the given simulation. It must therefore be inferred from how the tumor state responds to treatment.
+
+### Sim Runs:
 
 Both the resistance state, and tumor states start at state 0 out of 5, meaning that a total is six states are possible in each. In both simulations, POMDPs transition matricies perfectly reflect the transition probabilties of the enviorment. Two slightly different simulations are used:
 
@@ -193,12 +202,19 @@ Both the resistance state, and tumor states start at state 0 out of 5, meaning t
 
 -   In the capacities simulation, a single run of a POMDP with a slightly different model structure is used. This model can observes a perfect signal of whether the patients is alive, whether the model is testing, treating and a noised signal of the tumor state if the model has decided to test the patient on the given run. Its prior preferences are heavily skewed against observing a dead patient, somewhat against treating and little against treating. This means that it will have to balance the "cost" of all these actions". It is also handicapped further by the fact that the tumor signal is noised, and the resistance state, which must be inferred through the tumor signal is therefore doubly obfuscated. The likelihood mapping between however perfectly captures the maps the expected noise.
 
+### Changes to POMDP specification. 
+
+Hidden state factors do typically not affect each other at the state level. Instead their interactions are typically modelled as resulting from observations. This setup was deemed inadequate for the current experiment. It necessitated the that generative model could accurately model how the resistance state factor influences the probability of treatment succeeding. This was done in order to accurately portray issue of resistance levels generally being in accessible to current testing methodology and the evolutionary dynamics that are suspected to be at play in reducing resistance in real-world tumors.
+
+Accurately modelling how higher tumor levels makes decreases in resistance more likely was also crucial. Typically, transition probabilties in the generative models are constructed using three dimensional "B-tensors", which describe expected transition probabilties within a state factor: one dimension the current state, one dimension for what ever action is chosen and third for the resulting state.
+
+For the present project another dimension was added, this dimension corresponds to the state of another state factor. Concretely, this meant that the tumor state factor had fourth dimension. By matrix multiplication the expectation over this fourth dimension is factored in. One could choose to view it as there are now as many three dimensional b-tensors for the tumor state factor as there are states in the resistance factor. Effectively, matrix multiplying these result in a probability weighted average of expected tumor transition probabilities, i.e. the expectation. However, it should be noted that it is not trivial the order in which states are evaluated and that this must be specified. This also resulted in much pymdp functionality breaking, since it was presumably built only with three dimensional b-tensors in mind.
+
 # Results
 
 ## Performance of POMDPs vs ADT heuristic
 
 ```{r}
-
 #print densities
 source("sim_lengths_densities_full.R")
 
@@ -276,7 +292,7 @@ source("single_model_trajectories plot.R")
 plot
 ```
 
-Dotted vertical lines indicated the timepoint for which the evaluation of expected states are extracted.
+Dotted vertical lines indicated the time-point for which the evaluation of expected states are extracted.
 
 # Discussion
 
