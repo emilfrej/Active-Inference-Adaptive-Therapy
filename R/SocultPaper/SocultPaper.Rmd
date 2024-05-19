@@ -296,6 +296,14 @@ Dotted vertical lines indicated the time-point for which the evaluation of expec
 
 # Discussion
 
+## What has this project found
+
+The current simulation demonstrates that in a ableit simplified enviorment that mimicks particular dynamics of adaptive therapy, POMPD models for which the excact transition probabilties of the enviorment has already been specified can plan treatment better than the specific range-bounded treatment heuristic implemented here. It should be noted that only one range bound was tested. The gain in relative time to progression is stronger under more aggressive cancer growth rates, and POMPDs with longer policy horizons perform better than shorter policy horizons. It is quite possible that the celing effect of policy horizion wasn't met.
+
+Additionally, the paper demonstrates that pompd show a number of desiarable qualities especially true for adaptive cancer therapy, but some of these could possibly also be extended to other medical situations. While the POMDP is able to discern the difference between an underlying state and the noised signal it emits. In the present case this would be tumor state and the tumor observatoin, more interestingly, is the ability of the POMDPs to directly control a deeper state (in the present example, the resistance state). This state doesn't produce observations directly, but is mediated through another state (tumor state). It thus has to be inferred through how other states evolve over time. Modelling the underlying states was achieved using a small change to POMPD implementation in pymdp. (See methods section for a thorough explanation). This points to another important quality of POMDPs, namely their flexibility. More complex generative models could straight forwardly by set up and tested. One could for example envision a multi-drug generative model or models that "cancer agressivity" state which would modulate how aggressive fast the tumor changes. Crucially, for each causal node one can dream up, if it can be discretized and describe in terms of transition probabilities, it should be implementable.
+
+In a review of modelling approaches for adaptive therapy, [@west2023] highlight desiderata for mathematical models for Adaptive therapy. One of these is
+
 ## Does it work for other sorts of medical planning
 
 ## FEP components can besued to balance testing and treating
@@ -305,6 +313,8 @@ Dotted vertical lines indicated the time-point for which the evaluation of expec
 ## Only one range bound
 
 ## Future Research
+
+## NESS Priors over policies
 
 ### Continuous state space or binning illness
 
