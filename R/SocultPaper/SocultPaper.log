@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.17)  19 MAY 2024 08:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.17)  19 MAY 2024 09:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1161,20 +1161,20 @@ Underfull \hbox (badness 10000) in paragraph at lines 206--206
 
 Package marginnote Info: xpos seems to be 167.01753pt on input line 206.
 Package epstopdf Info: Source file: <Definitions/logo-mdpi.eps>
-(epstopdf)                    date: 2024-05-19 08:52:09
+(epstopdf)                    date: 2024-05-19 08:58:22
 (epstopdf)                    size: 721843 bytes
 (epstopdf)             Output file: <Definitions/logo-mdpi-eps-converted-to.pdf>
-(epstopdf)                    date: 2024-05-19 08:52:09
+(epstopdf)                    date: 2024-05-19 08:58:22
 (epstopdf)                    size: 43866 bytes
 (epstopdf)             Command: <repstopdf --outfile=Definitions/logo-mdpi-eps-converted-to.pdf Definitions/logo-mdpi.eps>
 (epstopdf)             \includegraphics on input line 206.
 Package epstopdf Info: Output file is already uptodate.
-<Definitions/logo-mdpi-eps-converted-to.pdf, id=126, 88.33pt x 58.2175pt>
+<Definitions/logo-mdpi-eps-converted-to.pdf, id=138, 88.33pt x 58.2175pt>
 File: Definitions/logo-mdpi-eps-converted-to.pdf Graphic file (type pdf)
 <use Definitions/logo-mdpi-eps-converted-to.pdf>
 Package pdftex.def Info: Definitions/logo-mdpi-eps-converted-to.pdf  used on input line 206.
 (pdftex.def)             Requested size: 43.16885pt x 28.45274pt.
-<Definitions/logo-orcid.pdf, id=128, 102.3825pt x 102.3825pt>
+<Definitions/logo-orcid.pdf, id=140, 102.3825pt x 102.3825pt>
 File: Definitions/logo-orcid.pdf Graphic file (type pdf)
 <use Definitions/logo-orcid.pdf>
 Package pdftex.def Info: Definitions/logo-orcid.pdf  used on input line 206.
@@ -1213,7 +1213,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [2]
-<SocultPaper_files/figure-latex/unnamed-chunk-1-1.pdf, id=159, 453.695pt x 316.18124pt>
+<SocultPaper_files/figure-latex/unnamed-chunk-1-1.pdf, id=171, 453.695pt x 316.18124pt>
 File: SocultPaper_files/figure-latex/unnamed-chunk-1-1.pdf Graphic file (type pdf)
 <use SocultPaper_files/figure-latex/unnamed-chunk-1-1.pdf>
 Package pdftex.def Info: SocultPaper_files/figure-latex/unnamed-chunk-1-1.pdf  used on input line 363.
@@ -1231,7 +1231,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [3]
-<SocultPaper_files/figure-latex/unnamed-chunk-2-1.pdf, id=164, 453.695pt x 316.18124pt>
+<SocultPaper_files/figure-latex/unnamed-chunk-2-1.pdf, id=176, 453.695pt x 316.18124pt>
 File: SocultPaper_files/figure-latex/unnamed-chunk-2-1.pdf Graphic file (type pdf)
 <use SocultPaper_files/figure-latex/unnamed-chunk-2-1.pdf>
 Package pdftex.def Info: SocultPaper_files/figure-latex/unnamed-chunk-2-1.pdf  used on input line 376.
@@ -1249,7 +1249,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [4 <./SocultPaper_files/figure-latex/unnamed-chunk-1-1.pdf>]
-<SocultPaper_files/figure-latex/unnamed-chunk-3-1.pdf, id=180, 462.72874pt x 309.155pt>
+<SocultPaper_files/figure-latex/unnamed-chunk-3-1.pdf, id=192, 462.72874pt x 309.155pt>
 File: SocultPaper_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 <use SocultPaper_files/figure-latex/unnamed-chunk-3-1.pdf>
 Package pdftex.def Info: SocultPaper_files/figure-latex/unnamed-chunk-3-1.pdf  used on input line 385.
@@ -1267,7 +1267,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [5 <./SocultPaper_files/figure-latex/unnamed-chunk-2-1.pdf>]
-<SocultPaper_files/figure-latex/unnamed-chunk-4-1.pdf, id=196, 453.695pt x 316.18124pt>
+<SocultPaper_files/figure-latex/unnamed-chunk-4-1.pdf, id=208, 453.695pt x 316.18124pt>
 File: SocultPaper_files/figure-latex/unnamed-chunk-4-1.pdf Graphic file (type pdf)
 <use SocultPaper_files/figure-latex/unnamed-chunk-4-1.pdf>
 Package pdftex.def Info: SocultPaper_files/figure-latex/unnamed-chunk-4-1.pdf  used on input line 408.
@@ -1285,7 +1285,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [6 <./SocultPaper_files/figure-latex/unnamed-chunk-3-1.pdf>]
-<SocultPaper_files/figure-latex/unnamed-chunk-5-1.pdf, id=212, 463.7325pt x 309.155pt>
+<SocultPaper_files/figure-latex/unnamed-chunk-5-1.pdf, id=224, 463.7325pt x 309.155pt>
 File: SocultPaper_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf)
 <use SocultPaper_files/figure-latex/unnamed-chunk-5-1.pdf>
 Package pdftex.def Info: SocultPaper_files/figure-latex/unnamed-chunk-5-1.pdf  used on input line 419.
@@ -1303,7 +1303,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [7 <./SocultPaper_files/figure-latex/unnamed-chunk-4-1.pdf>]
-<SocultPaper_files/figure-latex/unnamed-chunk-6-1.pdf, id=226, 457.71pt x 313.17pt>
+<SocultPaper_files/figure-latex/unnamed-chunk-6-1.pdf, id=238, 457.71pt x 313.17pt>
 File: SocultPaper_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file (type pdf)
 <use SocultPaper_files/figure-latex/unnamed-chunk-6-1.pdf>
 Package pdftex.def Info: SocultPaper_files/figure-latex/unnamed-chunk-6-1.pdf  used on input line 428.
@@ -1321,7 +1321,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [8 <./SocultPaper_files/figure-latex/unnamed-chunk-5-1.pdf>]
-<SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf, id=241, 469.755pt x 309.155pt>
+<SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf, id=253, 469.755pt x 309.155pt>
 File: SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
 <use SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf>
 Package pdftex.def Info: SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf  used on input line 451.
@@ -1339,15 +1339,23 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [9 <./SocultPaper_files/figure-latex/unnamed-chunk-6-1.pdf>]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 16.18796pt, for example:
+(fancyhdr)                \setlength{\headheight}{16.18796pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
+
+[10 <./SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf>]
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 491.
+(Font)              scaled to size 9.37807pt on input line 552.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 491.
+(Font)              scaled to size 7.29405pt on input line 552.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 491.
+(Font)              scaled to size 9.37807pt on input line 552.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 491.
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 512.
+(Font)              scaled to size 7.29405pt on input line 552.
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 573.
 (/Users/emilfrej/Library/TinyTeX/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
@@ -1355,7 +1363,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 512.
+LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 573.
 (/Users/emilfrej/Library/TinyTeX/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
@@ -1370,21 +1378,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[10 <./SocultPaper_files/figure-latex/unnamed-chunk-7-1.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 585--585
+[11]
+Underfull \hbox (badness 10000) in paragraph at lines 646--646
 
  []
 
-(./appendix.tex)
-No file SocultPaper.bbl.
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 16.18796pt, for example:
-(fancyhdr)                \setlength{\headheight}{16.18796pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-(fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
-
-[11]
+(./appendix.tex) (./SocultPaper.bbl)
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1400,21 +1399,21 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-04-11>
  ***********
 Package rerunfilecheck Info: File `SocultPaper.out' has not changed.
-(rerunfilecheck)             Checksum: B4A9AAE13CDE134678CE314633F8576D;5299.
+(rerunfilecheck)             Checksum: 19CC35BF089DE6B7F69C8E26377745A2;5789.
  ) 
 Here is how much of TeX's memory you used:
- 33400 strings out of 476010
- 634582 string characters out of 5790700
+ 33455 strings out of 476010
+ 635319 string characters out of 5790700
  1955751 words of memory out of 5000000
- 54581 multiletter control sequences out of 15000+600000
- 621464 words of font info for 349 fonts, out of 8000000 for 9000
+ 54596 multiletter control sequences out of 15000+600000
+ 624595 words of font info for 371 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  123i,13n,126p,1008b,635s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </Users/emilfrej/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tctt0900.600pk> </Users/emilfrej/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt0900.600pk> </Users/emilfrej/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss0800.375pk></Users/emilfrej/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></Users/emilfrej/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/emilfrej/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/emilfrej/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on SocultPaper.pdf (12 pages, 294248 bytes).
+Output written on SocultPaper.pdf (12 pages, 299265 bytes).
 PDF statistics:
- 459 PDF objects out of 1000 (max. 8388607)
- 361 compressed objects within 4 object streams
- 42 named destinations out of 1000 (max. 500000)
- 94490 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 475 PDF objects out of 1000 (max. 8388607)
+ 377 compressed objects within 4 object streams
+ 46 named destinations out of 1000 (max. 500000)
+ 98610 words of extra memory for PDF output out of 106986 (max. 10000000)
 
