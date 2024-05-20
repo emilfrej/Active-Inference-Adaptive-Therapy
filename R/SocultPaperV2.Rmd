@@ -192,6 +192,28 @@ plot
 
 Dotted vertical lines indicated the time-point for which the evaluation of expected states are extracted.
 
+### Policy evalutation
+
+```{r}
+source("single_run_best policy.R")
+plot
+```
+
+The above plot shows the highest evaluated policy at timestep 16 and at timestep 34. At timestep 16 not treatment is planned, and testing is withdrawn for next timestep but picked up again for reaminder of the period. For 34 treatment is suggested applied for three rounds. Note that policies are evaluated each timestep, and these plans are likely not finished. Instead a course of action is decided on each turn. The highest rated policy for each timestep is plotted
+
+```{r}
+source("single_run_overall_fep_policies.R")
+plot
+```
+
+The above plot doesnt show realized actions but cumultatiove best action from perspective of each time point. This means that for completely blank spots, there is no point where model thinks treating or testing would be the optimal course of action. This doesn't never happen for treating, but some periods of treatment are throught time best held withdrawn. A darker shade indicate that on multiple prior timesteps, the model thought acting would be best course of action. Excact decision making for each policy can also be extracted. Since each policy is evaluated for its EFE, its expected information and utility gains can be extracted
+
+```{r}
+source("FEPcomponents.R")
+plot
+
+```
+
 # Discussion
 
 ## What has this project found

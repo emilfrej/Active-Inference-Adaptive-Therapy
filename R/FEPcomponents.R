@@ -3,7 +3,7 @@
 
 fep_components <- single_trial_full_data
 ## plot the expected free energy components for course of action as barcharts
-ggplot(fep_components, aes(x = timestep)) +
+plot <- ggplot(fep_components, aes(x = timestep)) +
   
   #plot expected utility
   geom_bar(aes(y = expected_utility, fill = "Expected Utility"), stat = "identity")  +

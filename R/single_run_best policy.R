@@ -12,7 +12,6 @@ fep_ex_df <- fep_ex_df %>%
   filter(timestep %in% chosen_timesteps)
  
 
-
 source("sim_run_example.R") 
 
 plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
