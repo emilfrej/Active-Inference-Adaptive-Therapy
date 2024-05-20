@@ -5,10 +5,13 @@ num_policies <- single_trial_full_data$policy[1] %>%
 #create a vector with column names pol 1 pol 2 up pol 6
 pol_names <- paste0("pol_", 1:num_policies)
 
+chosen_timesteps <- c(16, 34)
+
 #construct a dataframe for fep values at a few timesteps 
 fep_ex_df <- fep_ex_df %>% 
-  filter(timestep %in% c(16, 34)) 
+  filter(timestep %in% chosen_timesteps)
  
+
 
 source("sim_run_example.R") 
 
