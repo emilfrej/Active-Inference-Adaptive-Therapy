@@ -2,7 +2,9 @@
 title: "SocultPaperV2"
 output: pdf_document
 date: "2024-05-19"
+bibliography: references.bib
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
@@ -32,7 +34,49 @@ contrast_colors <- c("long_vs_adt" = long_col, "medium_vs_adt" = medium_col, "sh
 
 ### What is the adapative cancer therapy
 
-### desired qualities of models
+Worldwide, cancer is the cause of 1 out 6 deaths. Of these cancer deaths an estimated 90% are due to development of drug resistance [@bukowski2020]. While intial cancer treatment usually shows positive response in tumor burden, drug resistance develops due. To highlight the inefficincy of traditional approaches, [@stanková2019] models cancer treatment game theorict contest between a physician and a tumor, where physicians move on each round is to apply a certain treatment, and a tumor makes an adaption. While it is a "Stackelberg game", a game where one player is the leader (the physician) and another player is a follower (the tumor), is assymerty is rarely exploited. Instead of using their advantage to steer the evolutionary pressures placed on tumors, the physician lets the tumor not only adapt to the current round of the game but also to future rounds of the game. The advantage of leading the game is thereby lost. The authors aptly analogize the current practice:
+
+> *"Consider cancer treatment as a rock-paper-scissors game in which almost all cells within the cancer play, for example, “paper.” It is clearly advantageous for the treating physician to play “scissors.” Yet, if the physician only plays “scissors,” the cancer cells can evolve to the unbeatable resistance strategy of “rock.”"* [@stanková2019]
+
+*Adaptive Therapy* is a approach to cancer treatment based on controlling the intra-tumoral evolutionary dynamics. By leveraging that cancer cells can incur a fitness cost to evovling mechanisms that yield resistance to drugs. For example it has been shown that tumor cells can mutate to increased expression of PGP membrane pump, which uses ATP to move drugs out of the cell. While this makes cell more resistant to treatment, it also comes at metabolic cost. [@gatenby2009] found that PGP activity was the culprit of approximately 50% of cell metabolism. As a result, if resistant and non-resistant cells are competing for space and resources, drug-sensitive cells should over time outcompete resistant cells. Apative Therapy utilizes this darwinian competition to make cancer fight itself. Thus the dream-sceneario of this adaptive therapy is not to eradicate cancer, but instead make it a controllable chronic disease.
+
+[![Figure 1: From Zhang et al. 2023. Panel A shows a typical "Maximal Tolerable Dose" treatment protocol. While the initial response in tumor burden is promising, a compettive release of resistant cells ensures. Panel B shows Adaptive Therapy approach with a small tumor burden. Panel C shows adaptive therapy with a high tumor burden, which has been theorized to further increase the suppression of resistance cells through darwinian compettetion. [@zhang2023]](images/Screenshot 2024-05-20 at 08.15.19.png){width="686"}](https://doi.org/10.1016/j.critrevonc.2023.104192)
+
+Initial results from pilot clinical trial on metastatic castrate-resistant prostate cancer patients are promising. Intitial results showing both less cumuluative dosages and longer survival in comparison similiar group of patients recieving standard care. Firstly, patients were only involved if they showed a substainal positive response to treatment. The trial has then been utilizing a range-bounded treatment rule. If the bloodmarker *Prostate-specific Antigen* (PSA), a proxy of tumor burden, increases back to pre-trial levels, treatment is applied until PSA drops to 50% of pre–trial levels [@zhang2017]. The trial is expected to run until december 2024 [@h.leemoffittcancercenterandresearchinstitute2024].
+
+### Desired qualities of models
+
+While the trial reported by [@zhang2017] only utilized a single drug, key researchers in researchers in Adapative Therapy has produced a review of the use of mathematical modelling in the field, and among other things, indentified that modelling multidrug treatments is a necessity of future models. Additionally, they argue that it is unlikely that any treatment approach can accomplish delaying the emergence of resistant cells, lower the tumor burden and minizmize the toxicity. Given that patients likely differ in their ability to tolerate tumor burden and the toxicity of drugs and the evolutioanry dynamics of the cancers that they carry differ, ,odels would ideally therefore have to trade-off each these factors given a specific patient. This will require fitting data on invidual patients. Lotke-volterra models have been fitted frequently.
+
+#### biological factors 
+
+Another important aspect of modelling, is illumanitng the actual comppetive disadvantage that resistant cells are. While larger tumor sizes are thought to increase the suppresion of resistant cells, the dynamics are likely much more complex. Factors such as the spatial configuration of actual cells and the range of the molecular influence they yield of each other. It is also crucial that these actually incur a fitness cost, however other authiors argue that adaptive therapy might still be able to delay time-to-progression if this is not the case. Comptettion isn't neccesarily strong if the tumor isn't at carrying capacity.
+
+\*\* CONTROLLING THE RESPONSE TO TREATMENT IS PARAMOUNT. MOUNTAIN CAR PROBLEM\*\*
+
+Gene-expression has been shown to change in cells as a result of treatment, which further complicates modelling the adaptive therapy as case of resistant vs non resistant cells. Phenotypic plasticity should therefore also be accounted for. Another biological factor that should be accounted for is sourrind tissue. For example, prostate cancer cells in bone can utilzied such as the transforming growth factor $\beta$ can accelerate the proliferation of cancer cells.
+
+\*\* You can keep throwing layers at POMDPs\*\*
+
+The efficay adapative therapy depends strongly on initial resistance rates, and deciding to opt for control strategy such as adpative therapy would be beneficial if made early. THis however necessitates predicting what patients would respond better to adaptive therapy and who benefit better from the other treatment protocols, such as standard maximum tolerable dose protocol.
+
+#### How to construct dosing protocols
+
+High tumor burdens might also come with other costs, such as increasing the risk of new metastates or simply by the fact that more cells increase the chance total amount of mutations happening. Adapative therapy also depends on frequent monitoring, and could benefit from the use of different testing protocols.
+
+Robustness to changes to in plans due to machine failure or tother practical constraints.
+
+There is need to include multi-drug treatment protocols in adaptive therapy, but the number of possible permtuations at each point in time grows extremely fast when more treatment options are introduced. A potential solution to this problem is constructing a treatment protocol that steers the tumor in cycle, so that the conditions at the start of one treatment block is indentical to how conditions of the prior block. In principle only one block would have to be designed then. \*\* this is a non-steady-state equlibirum \*\*
+
+#### Constructing real time prediciton
+
+Prediciting individual patient repsonses real-time would greatly enhance adaptive therapy since dose modulation could be indivdualized further and evolutionary dynamics controllable with more precision. Using relevant biomarkers would be crucial in this regard \*\* all observable consequences also generate information \*\* Any chosen model must be able to be calibrated and validated before hand. When to time the collection of biomarks also seems to be in issue, since the prostate trial found that treatment would at times overshoot, since biomarkers were collected too late, and the PSA levels were dropped well-below 50%. This likely leads to poorer clinical performance. The link between biomarkers and actual tumor progression is not certain neither, meaning that decidnig when to treat directly on the basis of a biomarker might not be optimal.
+
+A key issue going forward is rethiking how data on patients is collected. It will be crucial to collect data not only to detect progression, but to collect data that will be usefull for future decisions too. \*\* this is EFE\*\* Quantifying the unceartinty in the models belief and the consequences of its suggested actions is also paramount.
+
+### What are POMDPs
+
+Partially Observable Markov Decision Processes (POMPD) is class of controller models that model and underlying markovian process, that in disctrete time and state enviroment, the next step of the system only depends on the current step. Crucially for partial orbservability is crucial facet of these models, and refers to the fact that these models don't directly observe the actual enviroment or markovian process, but instead only potentially noisy signals emitted by it [@. This allows these models to differiate an orbserved signal from what it "believes" about the enviorment and use a single reward function trade off unceartinty for achieveing a certain goal state [@kaelbling1998]. For example, if discretized a, POMDP could understand a PSA reading as noised signal of actual tumor state. POMPDs are solved at
 
 ### How do POMDPs meet these requirements
 
@@ -161,6 +205,8 @@ In a review of modelling approaches for adaptive therapy, [@west2023] highlight 
 ## FEP components can be used to balance testing and treating
 
 ## Would longer policy search be better
+
+Perhaps one could built a two-layer model. The bottom layer controls what goes inside the treatment-cycle, like the mountain-car controller. The top layer would the have to decide what of the different controllers to use. This
 
 ## Only one range bound
 
