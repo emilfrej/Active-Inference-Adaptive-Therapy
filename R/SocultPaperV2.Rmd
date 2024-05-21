@@ -74,15 +74,31 @@ Prediciting individual patient repsonses real-time would greatly enhance adaptiv
 
 A key issue going forward is rethiking how data on patients is collected. It will be crucial to collect data not only to detect progression, but to collect data that will be usefull for future decisions too. \*\* this is EFE\*\* Quantifying the unceartinty in the models belief and the consequences of its suggested actions is also paramount.
 
-### What are POMDPs
+### What are POMDPs in general
 
 Partially Observable Markov Decision Processes (POMPD) is class of controller models that model and underlying markovian process, that in disctrete time and state enviroment, the next step of the system only depends on the current step. Crucially for partial orbservability is crucial facet of these models, and refers to the fact that these models don't directly observe the actual enviroment or markovian process, but instead only potentially noisy signals emitted by it while trying to manipulate the evivorment [@åström1969]. This allows these models to differiate an orbserved signal from what it "believes" about the enviorment and use a single reward function trade off unceartinty for achieveing a certain goal state [@kaelbling1998] while yielding bayes optimal beliefs. For example, if discretized a, POMDP could understand a PSA reading as noised signal of actual tumor state, and thus try to control to tumor state rather than the PSA reading. While POMDPs are typically difficult to solve analytically various approximate approaches exist.
 
 ### Using active inference to solve pompds
 
-One approximate solutions, of these is born out of the field of neuroscience litterature. The field which has come to be know as active inference suggests that the brain could by using a varitional approach. By minimizing two objective functions. *Free Energy* (EFE) as measure of model and past sensory inputs, and *Expected Free Energy* (EFE) which evaluates future courses of actions against a set preferred observations. Active Inference has been used to model psychopathology [@dacosta2020] but also applied to control scenearious such as the mountain-car problem [@friston2009] and, albeit augmented with deep-learning, robotics control \@[@çatal2020].
+One approximate solutions, of these is born out of the field of neuroscience litterature. The field which has come to be know as active inference suggests that the brain could by using a varitional approach. By minimizing two objective functions. *Free Energy* (EFE) as measure of model and past sensory inputs, and *Expected Free Energy* (EFE) which evaluates future courses of actions against a set preferred observations. Active Inference has been used to model psychopathology [@dacosta2020] but also applied to control scenearious such as the mountain-car problem [@friston2009] and, albeit augmented with deep-learning, robotics control \@[@çatal2020]. These have been implemneted in MATLAB and recently in Python with the python package pymdp.
+
+Typically POMDPs are modelled for discrete state spaces. Mathematically they are described as joint probability:
+
+$$
+p(o,s,u;\phi)
+$$
+
+where $o$ are observations, \$s\$ are hidden states, \$u\$ are "control states" (states that an agent can influence) and $\phi$ are the hyperparameters of the model, such as \$\\gamma\$ typiccaly used as "temperature" or how strongly action evaluations determine the actually selected action [@heins2022]. For example, a POMPD could the joint probability of observing a certain amount of tumor burden in a patient, given some hidden states, such as the how resistancy of the underlying tumors, and whether a certain treatment was applied. This can be done for any time horizon. Due to considering time and states discrete, this joint probability can be made tractable for a time horizons by factorizing the joint probability into the following categorical probability distributions:
+
+-   A likelihood model $A$. This describes the how observations map to a particular state. For example how a PSA reading could map to an underlying tumor burden. It might be perfect signal of the tumor burden, but it could also be implemented as noised signal.
+
+-   A transition model $B$. It describes the probability of state transitioning to another on any particular timestep. This also encodes how actions are expected to influence transition probabilites. It could describe how a tumor is likely to evolve from one timestep to next depending whether treatments is being applied.
+
+-   
 
 ### How do POMDPs meet these requirements
+
+### Active Inference is implemented by minimizing free energy which minimizes surprisal
 
 # Methods
 
@@ -226,6 +242,10 @@ Another key feature of the POMDP implementation is the use of the free enegery p
 
 In a review of modelling approaches for adaptive therapy, [@west2023] highlight desiderata for mathematical models for Adaptive therapy. One of these is need for accurate descprition of the unceartinties for the mathematical model. As demonstrated, the beliefs about current and future states are completely accessible, and the decision making reduces to bayesian updating. Due the flexiblity of the POMDP structure, computation and our ability to specify the tranisiton probabilities are the only limit to number of interventions that could be modelled. Planning multidrug approaches should therefore also be a straightforward procedure for POMDPs. The "reasoning" behind the suggest treatment course is also evaluated since each policy is evaluated for its gain in utility, how much the policy will move the system towards desired states, and how accuracy of generative model will change. Only computation and our ability to specify the transition probabilities limit the number of interventions that could be added to POMPDs.
 
+**\*\* more information is present when treating** \*\*
+
+\*\* less
+
 ## Does it work for other sorts of medical planning
 
 ## FEP components can be used to balance testing and treating
@@ -238,12 +258,28 @@ Perhaps one could built a two-layer model. The bottom layer controls what goes i
 
 ## Future Research
 
-## NESS Priors over policies
+### NESS 
+
+Since the active inference minizime surprisal, if a capable model could be constructed
+
+### Priors over policies
+
+One could also enforce a prior over an adaptive therapy approach, making sure that the model would only deviate from this if its very certain. This could hopefully combine the benefits and robustness of the 50% rule of thumb wiht the capacities of active inference.
 
 ### Continuous state space or binning illness
 
+Moving from continous biomarkers to discrete data will be neccesary. either by reformulating pompds out for the discrete state space, or by binning, transforming observations into discrete values. Perhaps by diemnstionality reducition such as PCA, deep-neural networks, or simply binning observations. For example a tumor state could correspond to a 10% increase in tumor burden. Considering that they grow exponentially, this could perhaps result in the states occuupying the same amount of time/width of the underlying continous distreibution.
+
 ### Learning the transition parameters
 
+Learning the transistion parameters, could happen through some comibnation of learning on the fly and prespecifcation by experet/knowledge modelling. Deep-learning on simulation data could probably be used. Perhaps also on already fitted data.
+
 ### searching policy space better
+
+### 
+
+### Demonstrating the usefullness of this model
+
+An approach to demonstarting the usefullness of POMDP active inference model could be to show that it manages to control tumor progression succesfully on more realisting simulations, such as the Zhang et al. 2017 model. Either learning likelihood and transistion probabilities on the fly or specifiying them in a manner before hand that could be done in clinical setting too would be neccessary. Even more impressive would be a model that would given no chance to act, but only observe, accurately predict the actual outcomes of clinical data. For example the trial data reported. If this model would make interesting post-dictions, about better courses of actions, this would be severly interesting. It would still be hard to beat a rct.
 
 ### other fep models
