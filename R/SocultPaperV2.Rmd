@@ -258,7 +258,7 @@ Perhaps one could built a two-layer model. The bottom layer controls what goes i
 
 ## Future Research
 
-### NESS 
+### NESS
 
 Since the active inference minizime surprisal, if a capable model could be constructed
 
@@ -283,3 +283,5 @@ Learning the transistion parameters, could happen through some comibnation of le
 An approach to demonstarting the usefullness of POMDP active inference model could be to show that it manages to control tumor progression succesfully on more realisting simulations, such as the Zhang et al. 2017 model. Either learning likelihood and transistion probabilities on the fly or specifiying them in a manner before hand that could be done in clinical setting too would be neccessary. Even more impressive would be a model that would given no chance to act, but only observe, accurately predict the actual outcomes of clinical data. For example the trial data reported. If this model would make interesting post-dictions, about better courses of actions, this would be severly interesting. It would still be hard to beat a rct.
 
 ### other fep models
+
+### evaluating the how well these models will be crucial
