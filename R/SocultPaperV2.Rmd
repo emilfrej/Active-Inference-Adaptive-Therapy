@@ -30,7 +30,7 @@ contrast_colors <- c("long_vs_adt" = long_col, "medium_vs_adt" = medium_col, "sh
 
 # Introduction
 
-## Why we should POMDPs with FEP for Adaptive cancer therapy
+## 
 
 ### What is the adapative cancer therapy
 
@@ -80,25 +80,41 @@ Partially Observable Markov Decision Processes (POMPD) is class of controller mo
 
 ### Using active inference to solve pompds
 
-One approximate solutions, of these is born out of the field of neuroscience litterature. The field which has come to be know as active inference suggests that the brain could by using a varitional approach. By minimizing two objective functions. *Free Energy* (EFE) as measure of model and past sensory inputs, and *Expected Free Energy* (EFE) which evaluates future courses of actions against a set preferred observations. Active Inference has been used to model psychopathology [@dacosta2020] but also applied to control scenearious such as the mountain-car problem [@friston2009] and, albeit augmented with deep-learning, robotics control \@[@çatal2020]. These have been implemneted in MATLAB and recently in Python with the python package pymdp.
+One approximate solutions, of these is born out of the field of neuroscience litterature. The field which has come to be know as active inference suggests that the brain could by using a varitional approach. By minimizing two objective functions. *Free Energy* (EFE) as measure of model and past sensory inputs, and *Expected Free Energy* (EFE) which evaluates future courses of actions against a set preferred observations. Active Inference has been used to model psychopathology [@dacosta2020] but also applied to control scenearious such as the mountain-car problem [@friston2009] and, albeit augmented with deep-learning, robotics control \@[@çatal2020]. These have been implemneted in MATLAB and recently in Python with the python package pymdp [[@heins2022a] and [@heins2022].
 
-Typically POMDPs are modelled for discrete state spaces. Mathematically they are described as joint probability:
+Typically POMDPs are modelled for discrete state spaces. Mathematically they are described as a joint probability:
 
 $$
 p(o,s,u;\phi)
 $$
 
-where $o$ are observations, \$s\$ are hidden states, \$u\$ are "control states" (states that an agent can influence) and $\phi$ are the hyperparameters of the model, such as \$\\gamma\$ typiccaly used as "temperature" or how strongly action evaluations determine the actually selected action [@heins2022]. For example, a POMPD could the joint probability of observing a certain amount of tumor burden in a patient, given some hidden states, such as the how resistancy of the underlying tumors, and whether a certain treatment was applied. This can be done for any time horizon. Due to considering time and states discrete, this joint probability can be made tractable for a time horizons by factorizing the joint probability into the following categorical probability distributions:
+where $o$ are observations, $s$ are hidden states, $u$ are "control states" (states that an agent can influence) and $\phi$ are the hyperparameters of the model, such as $\alpha$ typiccaly used as 'inverse temperature' i.e. how deterministicly the model selects actions. By conditioning on certain observations, the POMDP is solvable by various approximations schemes for the optimal posterior beliefs over what the underlying hidden states are and what the optimal course of action is given a set of preferences. For example, a POMPD could model the joint probability of observing a certain amount of tumor burden in a patient, given some hidden states, such as the how resistancy of the underlying tumors, and whether a certain treatment was applied. Disregarding computability this can be done for any time horizon. Due to considering time and states discrete, this joint probability can be made tractable for a time horizons by factorizing the joint probability into the following categorical probability distributions:
 
--   A likelihood model $A$. This describes the how observations map to a particular state. For example how a PSA reading could map to an underlying tumor burden. It might be perfect signal of the tumor burden, but it could also be implemented as noised signal.
+-   A likelihood model $A$. Ususally modelled as a set of arrays where each array corresponds to an observation modality describes the how observations map to a particular state. For example how one modality could be PSA readings, and its likelihood array describes how likely different test results are under different tumor burdens. It can both be modelled as a perfect signal of the tumor burden, ie the same tumor burden always gives the same test result, but it could also be implemented as noised signal. If multiple states are modelled, each likelihood modality is an array with a dimension corresponding to the number of possible observations of that modality, and for each hidden state another dimension is added with the same length as the number of possible hidden states. In this way, every combination of state can be mapped to an observation.
 
--   A transition model $B$. It describes the probability of state transitioning to another on any particular timestep. This also encodes how actions are expected to influence transition probabilites. It could describe how a tumor is likely to evolve from one timestep to next depending whether treatments is being applied.
+-   A transition model $B$. It describes the probability of state transitioning to another on any particular timestep. This also encodes how actions are expected to influence transition probabilites. It could describe how a tumor is likely to evolve from one timestep to next depending whether treatments is being applied. The transition model is usually coded as collection of three-dimensional arrays, a first dimension for the next state, a dimension for the current state, and a third dimension with the length of each action that would influence transition probabilities of the state. Modelling the transition probabilities would depend on whether treatment is being applied or not.
 
--   
+-   A prior over preferred states $C$. A particularity of these models is that utility is specified in probabilities. This prior is set over certain observations, meaning that the model artificially expects to see certain observations. As a result, this drives the models behavior to act in ways that bring it close these expectations. At a first pass, describing a goal in terms of probabilities seems odd, but it could be considered a fundamental property of self-organizing systems. For example, to stay a live, I would have to spend time states where my tumor burden is low, even though in all likelihood, given enough time, I would come to develop cancer. Crucially, it allows for inferring what actions would bring about me spending time in states with low tumor burdens.
 
-### How do POMDPs meet these requirements
+-   A prior over initial states $D$. These are vectors of probabilities of intial beliefs. In continuation with example above, this component would specify how probable different levels of tumor burden before interacting with the patient.
 
-### Active Inference is implemented by minimizing free energy which minimizes surprisal
+The POMPD can be solved at any time step by minimizing two measures, *Variational Free Energy* (VFE) and *Expected Free Energy* (EFE). VFE is an upper bound on *surprisal,* and is approximated to infer the most likely current state given an observation, the likelihood model, and the prior over either initial states if no earlier orbsevations have been made. Otherwise the the precedding posterior over states is used as the current prior [@smith2022]. VFE scores how well the models representation aligns with a set of observations, and by using different approximate posteriors over states, choosing the approximate which minizimes VFE will approximate bayesian belief updating [@dacosta2020]. EFE instead score, plans on how to act and their expected outcomes. EFE is used to construct a posterior distribution over what policy is most preferred. Since the model is equipped with $C$, the set of prior preferences over observations, the distinguishing between probable and prefered is difficult. This could however be considered a benefit, since it EFE is a composite of utility gain and information.
+
+## The aim of this paper
+
+This potential benefit to adaptive therapy could be realized if adaptive therapy is modelled as a system where the tumor burden emits a noised signal. While controlling the tumor burden in short run is imperevative, truly successful strategies will have to also control future resistance dynamics. This task seems more challengig since resistance dynamics don't appear directly observable in clinical settings. Two obvious choices emerge, either implement a heuristic such which we expect to control the resistance dynamics well, or explicitly model the resistance dynamics despite paucity of real-time data on resistance. However, by applying a treatment and orbserving how the changes in tumor burden, the underlying resistance dynamics should be inferable. This paper invesitagets whether active inference can be used to gain traction on the second strategy.
+
+Consider the following motivations for using Active Inference:
+
+-   Real-time data will be sparse in the clinical settings. Extracting the maximum amount of infomraiton for each data point could be pivotal. Certain implementations of Active inference purpotedly approximate optimal bayesian inference.
+
+-   Short-term exploiting tumor vulnerability is essential for keeping the patient alive, but for long term success, but controlling resistance dynamics is essential. A therapy plan will have to balance keeping the patient alive now against limiting its future options for treating. Since the degree of resistance is not directly
+
+-   Gaining information about how the resistance dyanimcs is also essential and this must be done through treating the tumor. Choosing whether to treat would therefore not only be a consideration of the tumor level, but also about how much wiser it would make us about learning the resistance dynamics.
+
+-   If the resitance level is only inferable through orbserving the treatment efficacy, the expected information gain from observing tumor the burden, i.e. testing, will differ between periods of treatment and non treatment. All else being equal, testing would therefore be more valuable during treatment.
+
+An interesting corollary is that two patients could have the excatly the same tumor burden, but if the resitance dynamics is well modelled for one, treating could be poor choice. But the other patient could have excatly the have the same tumor burden, applying treatment could be the optimal move simpllearn about the resistance dynamics of their cancer. Due its approximations of bayesian inference and its ability to make utility information tradeoffs when deciding on actions, active inference seems to be promising paradigm planning adaptive therapy. By constructing simulating a simplified disctrete enviroment based on adaptive therapy, this paper will attempt to adapt the active inference implmentation of POMDPs in pymdp with the goal of keeping a virtual patient alive for as long as possible by inferring and controlling the tumor level in the short run and the resiostance level in the long run.
 
 # Methods
 
@@ -244,8 +260,6 @@ In a review of modelling approaches for adaptive therapy, [@west2023] highlight 
 
 **\*\* more information is present when treating** \*\*
 
-\*\* less
-
 ## Does it work for other sorts of medical planning
 
 ## FEP components can be used to balance testing and treating
@@ -260,7 +274,9 @@ Perhaps one could built a two-layer model. The bottom layer controls what goes i
 
 ### NESS
 
-Since the active inference minizime surprisal, if a capable model could be constructed
+Especially POMPDs but also other models have been used to model the decision of agents in active inference. Especially in psychopathology, human decision making has been modeled through these. This presents a fairly speculative, but interesting possibilty. It could potentially allow to approximate the decsision making of otherwise black box models. Perhaps if suitable controller could be designed for example by machine learning or another process leading to an opaque decision making process. POMPD should be fit table to its behavior and the model's decision making would thus become transparet. It would likely come with a cost to performance, but perhaps such a trading some performance for transparency could be worthwhile in a clinical setting.
+
+This approach obviously isn't any better than our ability to construct such a black-box model and evaluate is performance prior to clinical trials.
 
 ### Priors over policies
 
@@ -274,14 +290,14 @@ Moving from continous biomarkers to discrete data will be neccesary. either by r
 
 Learning the transistion parameters, could happen through some comibnation of learning on the fly and prespecifcation by experet/knowledge modelling. Deep-learning on simulation data could probably be used. Perhaps also on already fitted data.
 
-### searching policy space better
+### Searching Policy Space better
 
 ### 
 
-### Demonstrating the usefullness of this model
+### Demonstrating the usefullness of models in adaptive therapy
 
 An approach to demonstarting the usefullness of POMDP active inference model could be to show that it manages to control tumor progression succesfully on more realisting simulations, such as the Zhang et al. 2017 model. Either learning likelihood and transistion probabilities on the fly or specifiying them in a manner before hand that could be done in clinical setting too would be neccessary. Even more impressive would be a model that would given no chance to act, but only observe, accurately predict the actual outcomes of clinical data. For example the trial data reported. If this model would make interesting post-dictions, about better courses of actions, this would be severly interesting. It would still be hard to beat a rct.
 
-### other fep models
+### Other fep models
 
-### evaluating the how well these models will be crucial
+### 
