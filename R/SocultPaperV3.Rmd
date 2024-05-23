@@ -151,7 +151,7 @@ plot
 
 The model seems to be somewhat sensibly applying treatment. Generally it refrains from applying treatment when the tumor state is low. Interestingly it applies treatment at the first timestep, despite the tumor state and resistance state are at their lowest possible values. Considering that the model has uniform priors about resistance state and tumor level, this means that it is maximally uninformed about both. Treating and testing would therefore immediately give information about both. Qualitively, the model also seems to prefer testing when treatment is being applied. This suggest that it first testing to be more worthwhile while also treating. Considering that testing during treatment not only provides information about the tumor state, but also the resistance state, this behavior is useful.
 
-A plot of the models beliefs about the resistance state at each timepoint (see Fig. 2) also shows that the its beliefs generally follow the development of the actual resistance level.
+A plot of the models beliefs about the resistance state at each time-point (see Fig. 2) also shows that the its beliefs generally follow the development of the actual resistance level.
 
 ```{r, fig.cap="Figure 2. Plot of the models belief about the reistance level at every timepoint"}
 
@@ -199,15 +199,11 @@ plot
 
 The free energy components reveal a number interesting decessiion making points. At first, the model, given its uniform priors, is very unceartain about outcomes, and deacreasing unceartinty weighs heavily in its decision making. This unceartinty also means that models beliefs that it is more likely to be in a risky situtation, and bringing down this risk weighs heaviliy. At the earlier indefitied pivotal period between timesteps 30-39, there is concerning lack of increase in the weight of the utility component. This could mean that the model is too concerned with avoiding both treating and testing. It its first from timesteps 40, where the model realizes the severity of the situation, i.e. the rising tumor level. (See Fig. 5). This analysis there warrants to strategies to increasing the models ability. Changing the prior preferences, to make testing and treatment "cheaper" in terms of utilty would hopefully. However, this simply treating and testing more would translate to actual costs both financial and too patient well-being. While it would be important that the prior preferences are tuned to costs in a clinical setting, it would probably be more fruitfull to give the model longer policies to consider. This would hopefully yield models that are better tuned to the risks of not detecting and controlling tumor levels at low values.
 
-## Performance against range bounded approach
+## Performance of POMPDs against a range-bounded strategy
+
+Several modified Acitive Inference POMPDs were tested against a range-bounded strategy. This was done to test to benchmark the perfomance of POMPDs against a strategy inspired by treatement protocol used in the pilot clinical trial [@zhang2017]
 
 Performance simulation, where a range-bounded approach to managing the tumor is used, where the treatment is begun each time the tumor state increases above level 3, and is withdrawn when the tumor state drops below 2. 100 runs at 4 different probabilities of increasing the tumor state is run for maximally 200 timesteps. For each run, vectors of outcomes are pregenerated, meaning that vector of whether the tumor increases of length 200 is predetermined where each entry has the probability specified for the entire simulation. Likewise vectors are generated for treatment outcomes at each resistance level, and outcomes for resistance drops. This is done to ensure comparibility between the range-bounded approach and POMDP models that consider different future outcomes at different lengths. In these runs the tumor state is perfectly observable, meaning a tumor state always generates tumor observation that corresponds to hidden factor. The POMPD can only observe the tumor level, and its prior preferences are uniform over all tumor states except for the highest. These POMPDS only consider a combination of policies at each timestep. They can only consider treating or not treating for three timesteps in a row. The shortest horizon model only considers one of these blocks, while the medium considers two blocks of treating or not treating, for total horizon of 6 steps into the future. The longest horizon model considers three blocks for a total of 9 steps into the future. This is done to ease the computational burden, since it greatly reduces the total number of policies to be evaluated.
-
-# Results
-
-## Capabilities
-
-## Performance of POMDPs vs ADT heuristic
 
 ```{r}
 #print densities
