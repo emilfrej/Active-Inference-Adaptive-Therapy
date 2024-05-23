@@ -18,13 +18,13 @@ theme_set(theme_classic())
 
 
 #set colors
-adt_col <- "green"
+rb_col <- "green"
 long_col <- "red"
 medium_col <- "skyblue"
 short_col = "violet"
 
-strat_colors <- c("ADT" = adt_col, "Long" = long_col, "Medium" = medium_col, "Short" = short_col)
-contrast_colors <- c("long_vs_adt" = long_col, "medium_vs_adt" = medium_col, "short_vs_adt" = short_col)
+strat_colors <- c("RB" = rb_col, "Long" = long_col, "Medium" = medium_col, "Short" = short_col)
+contrast_colors <- c("long_vs_rb" = long_col, "medium_vs_rb" = medium_col, "short_vs_rb" = short_col)
 
 source("ReadInData.R")
 
@@ -32,7 +32,7 @@ source("ReadInData.R")
 
 # Introduction
 
-### What is the adapative cancer therapy
+### What is the adaptive cancer therapy
 
 Worldwide, cancer is the cause of 1 out 6 deaths. Of these cancer deaths an estimated 90% are due to development of drug resistance [@bukowski2020]. While intial cancer treatment usually shows positive response in tumor burden, drug resistance develops due. To highlight the inefficincy of traditional approaches, [@stanková2019] models cancer treatment game theorict contest between a physician and a tumor, where physicians move on each round is to apply a certain treatment, and a tumor makes an adaption. While it is a "Stackelberg game", a game where one player is the leader (the physician) and another player is a follower (the tumor), is assymerty is rarely exploited. Instead of using their advantage to steer the evolutionary pressures placed on tumors, the physician lets the tumor not only adapt to the current round of the game but also to future rounds of the game. The advantage of leading the game is thereby lost. The authors aptly analogize the current practice:
 
@@ -168,7 +168,7 @@ All in all, the modification to POMPD structure seems to allow the model to infe
 
 For each policy the model evaluates the expected trajectory of the hidden states. (See Fig. 3). These are easily accessible describe the models uncertainty, what it expects to happen under the best policy at each time point.
 
-```{r fig.cap=paste("Figure 3. Shows the expected trajectories for highest evaluated policy at timepoints",chosen_timesteps[1]), "and", chosen_timesteps[2]}
+```{r, fig.cap= "Figure 3. Shows the expected trajectories for highest evaluated policy at certain timepoints"}
 source("single_model_trajectories plot.R")
 plot
 ```
@@ -201,11 +201,17 @@ The free energy components reveal a number interesting decessiion making points.
 
 ## Performance of POMPDs against a range-bounded strategy
 
-Several modified Acitive Inference POMPDs were tested against a range-bounded strategy. This was done to test to benchmark the perfomance of POMPDs against a strategy inspired by treatement protocol used in the pilot clinical trial [@zhang2017]
+Several modified Active Inference POMPDs were tested against a range-bounded strategy. This was done to test to benchmark the perfomance of POMPDs against a strategy inspired by treatement protocol used in the pilot clinical trial [@zhang2017]. The POMPDs were changed, so that they only could observe the tumor state, and they would recieve a noiseless signal of this on every timestep. They were also only given prior preferences for orbsevations of tumor states. These were uniform over all except the for highest tumor state, for which the probability was set to 0. Three POMPDs were tested with different lengths of policy horizons:
 
-Performance simulation, where a range-bounded approach to managing the tumor is used, where the treatment is begun each time the tumor state increases above level 3, and is withdrawn when the tumor state drops below 2. 100 runs at 4 different probabilities of increasing the tumor state is run for maximally 200 timesteps. For each run, vectors of outcomes are pregenerated, meaning that vector of whether the tumor increases of length 200 is predetermined where each entry has the probability specified for the entire simulation. Likewise vectors are generated for treatment outcomes at each resistance level, and outcomes for resistance drops. This is done to ensure comparibility between the range-bounded approach and POMDP models that consider different future outcomes at different lengths. In these runs the tumor state is perfectly observable, meaning a tumor state always generates tumor observation that corresponds to hidden factor. The POMPD can only observe the tumor level, and its prior preferences are uniform over all tumor states except for the highest. These POMPDS only consider a combination of policies at each timestep. They can only consider treating or not treating for three timesteps in a row. The shortest horizon model only considers one of these blocks, while the medium considers two blocks of treating or not treating, for total horizon of 6 steps into the future. The longest horizon model considers three blocks for a total of 9 steps into the future. This is done to ease the computational burden, since it greatly reduces the total number of policies to be evaluated.
+-   A short horizon model that could consider a block of treating or not treating for the next three steps.
 
-```{r}
+-   A medium horizon model that could consider two blocks of treat tating or not treating for three steps. This yielded a total horizon of 6 timesteps
+
+-   A long horizon model that could consider 4 blocks of treating or treating for three steps, for a total horizon of 12 steps.
+
+These four models, were tested on 4 bouts of different "tumor aggressivity settings". The tested growth rates were .1, .3, 5, and .7 probability of increasing the tumor state at each timestep. Each of these 4 bouts consisted of 100 simulation runs for each model. For each single run, the environment was predetermined by generating a 200 outcomes at each combination of tumor state, resistance state and treatment state. This was done to ensure comparability at the level of each run.
+
+```{r, fig.cap= "Figure. 7. The observed simulation lengths for each model type and tumor risk."}
 #print densities
 source("sim_lengths_densities_full.R")
 
@@ -218,30 +224,21 @@ plot +
 
 ```
 
-Four different simulation runs each consisting of 100 runs, of maximally 200 timesteps for different rates of tumor growth (respectively 1. .3, .5, and .7 probability of increasing the tumor state) . On each run the the outcomes on each of the potential 200 random variables are generated and each strategy is therefore tested on a the same enviroment. On the lowest tumor growth rate almost all the runs reach maximal length.
+On the lowest tumor growth rate almost all the runs reach maximal length (see Fig. 7). The longest policy strategy also appear to perform slightly better than the other models. Since the difficulty of managing the tumor burden changed, contrast are computed between the long policy POMPD and the range-bounded strategy. Since each stochasticity of each run was pretedermined, the a percentage difference from switching from a RB-strategy to POMDP can be computed for each run (see Fig. 8).
 
-Contrasts against ADT-performance for growth rate .3, .5 and .7 are plotted. .1 is omitted since it appears that maximal perforamnce was achieved for each policy horizon of the POMPD strategies.
-
-```{r}
-source("contrasted_sim_lengths_.R")
-
-plot +
-  scale_fill_manual(values = contrast_colors) +
-  scale_color_manual(values = contrast_colors) 
-  
-```
-
-Two interpretations emerge from the contrasted simulation lengths. As the the growth rate increases, the POMDP seems to run for longer than the specific instance of the range bounded approach. It also seems that longer policy horizon seems beneficial. When the tumor state had .7 probability of increasing each timestep, the longest POMPD with the longest policy horizon performed as follows.
-
-```{r}
+```{r, fig.cap="Figure 8. Shows the change in percent of between the range-bound approach and hte longest horizon POMPD for tumor aggresivity settings"}
 source("contrasted_sim_length_max_horizon.R")
 
 plot +
   scale_fill_manual(values = contrast_colors) +
-  scale_color_manual(values = contrast_colors) 
+  scale_color_manual(values = contrast_colors) +
+  xlim(-50, 400)
+
+
+
 ```
 
-At more aggressive cancer rates, the simulation consistently to outperform the range bounded approach. The absoulute increase in timesteps decreases however.
+On the 100 runs of .1 risk of tumor growth, the long horizon POMPD, seems to perform similar to the RB strategy. But as the tumor growth risk increases, the model POMPD increaseingly shows large percentage increases as compared to the RB strategy. This could be beacuse as the tumor dynamics speed up the need for proactive action becomes more important, thus favoring models that attempt to also control the underlying resistance state.
 
 # Discussion
 
