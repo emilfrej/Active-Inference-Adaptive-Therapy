@@ -1,5 +1,5 @@
 ---
-title: "SocultPaperV2"
+title: "SocultPaperV3"
 output: pdf_document
 date: "2024-05-19"
 bibliography: references.bib
@@ -13,7 +13,7 @@ knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 # set the directory to visualizations folder
 
 
-pacman::p_load(tidyverse, ggnewscale)
+pacman::p_load(tidyverse, ggnewscale, patchwork)
 theme_set(theme_classic())
 
 
@@ -26,11 +26,11 @@ short_col = "violet"
 strat_colors <- c("ADT" = adt_col, "Long" = long_col, "Medium" = medium_col, "Short" = short_col)
 contrast_colors <- c("long_vs_adt" = long_col, "medium_vs_adt" = medium_col, "short_vs_adt" = short_col)
 
+source("ReadInData.R")
+
 ```
 
 # Introduction
-
-## 
 
 ### What is the adapative cancer therapy
 
@@ -116,31 +116,96 @@ Consider the following motivations for using Active Inference:
 
 An interesting corollary is that two patients could have the excatly the same tumor burden, but if the resitance dynamics is well modelled for one, treating could be poor choice. But the other patient could have excatly the have the same tumor burden, applying treatment could be the optimal move simpllearn about the resistance dynamics of their cancer. Due its approximations of bayesian inference and its ability to make utility information tradeoffs when deciding on actions, active inference seems to be promising paradigm planning adaptive therapy. By constructing simulating a simplified disctrete enviroment based on adaptive therapy, this paper will attempt to adapt the active inference implmentation of POMDPs in pymdp with the goal of keeping a virtual patient alive for as long as possible by inferring and controlling the tumor level in the short run and the resiostance level in the long run.
 
-# Methods
+# Analysis
 
-## Simulation details
+## Simulated environment
 
-### Enviroment
+In order to easily comply with the discrete state and time implementation typical of the active inference litterature, discetrete states and time were used. Each run of the enivorment were maximally 200 timesteps long. In each timestep, a model has to keep a virtual cancer patient alive. Only one treatment and testing type exists. This was inspired by the use of PSA as testing of choice, and Abiraterone as the only treatment in a pilot clinical trial [@zhang2017]. In the simulation, a patient's tumor state determines whether they survive to the next timestep or not. Runs always begin with the tumor state at 0, but it increases with a fixed risk at each timestep. If the tumor state reaches 5, the simulation ends.
 
-The simulated enviroment features discretized of planning cancer treatments. At each timestep a "cancer state" has a certain risk of increasing. If the tumor ever reaches the state 5, the simulation ends. To avoid this, a model has decide when to apply treatment. Applying treatment can reduce the tumor level - whether the treatment succesfully reduces the "cancer state" depends on a underlying *resistance state*. When the resistance is low, the chance of treatment succeeding is high, but probability declines as the resistance state increase. The resistance state has fixed probability of increasing when treatment is applied, and it can decrease when treatment is withdrawn. Whether the resistance state decreases depends on the tumor level. At high tumor levels, the resistance state is more likely to decrease, but thiscarries the risk of tumor growing out of control and "killing the patient". In order to succesfully manage the disease, a model will therefore also have to manage the resistance state. However, the resistance state is directly orbserable in the given simulation. It must therefore be inferred from how the tumor state responds to treatment.
+To avoid this, a model has decide when to apply treatment. Applying treatment can reduce the tumor state. But whether a treatment is succefully reduces the tumor state depends on a underlying *resistance state*. The resistance state also begins at state 0 out of 5. When the resistance is low, the chance of treatment succeeding is high and vice versa. But for each round of treatment, the resistance state has a fixed risk of increasing. The resistance state can decrease if treatment is withdrawn, but the probability of the resistance state decreases depends on the tumor level. At high tumor levels, the resistance state is more likely to decrease. This is based on the work of [@hansen2020] who suggests that larger tumor sizes should generate more competitive pressure on resistant-cells.
 
-### Sim Runs:
+All in all this means that a model has to balance the not tumor growing out of control, which would "kill the patient", against not painting itself into a corner by applying treatment too frequently. In order to successfully long-term manage the disease, a model will therefore also have to manage the resistance state. To mimic, the dynamics of the pilot trial with mCRPC, only the tumor state can be observed. The resistance state will therefore have to be inferred through how the tumor state changes when treatment is applied.
 
-Both the resistance state, and tumor states start at state 0 out of 5, meaning that a total is six states are possible in each. In both simulations, POMDPs transition matricies perfectly reflect the transition probabilties of the enviorment. Two slightly different simulations are used:
+## Modifications to POMPD scheme
 
--   Performance simulation, where a range-bounded approach to managing the tumor is used, where the treatment is begun each time the tumor state increases above level 3, and is withdrawn when the tumor state drops below 2. 100 runs at 4 different probabilities of increasing the tumor state is run for maximally 200 timesteps. For each run, vectors of outcomes are pregenerated, meaning that vector of whether the tumor increases of length 200 is predetermined where each entry has the probability specified for the entire simulation. Likewise vectors are generated for treatment outcomes at each resistance level, and outcomes for resistance drops. This is done to ensure comparibility between the range-bounded approach and POMDP models that consider different future outcomes at different lengths. In these runs the tumor state is perfectly observable, meaning a tumor state always generates tumor observation that corresponds to hidden factor. The POMPD can only observe the tumor level, and its prior preferences are uniform over all tumor states except for the highest. These POMPDS only consider a combination of policies at each timestep. They can only consider treating or not treating for three timesteps in a row. The shortest horizon model only considers one of these blocks, while the medium considers two blocks of treating or not treating, for total horizon of 6 steps into the future. The longest horizon model considers three blocks for a total of 9 steps into the future. This is done to ease the computational burden, since it greatly reduces the total number of policies to be evaluated.
+Typically in active inference implementations of POMPDs, hidden state factors such as resistance and tumor states do typically not affect each other. Instead the interactions of different state factors are typically modelled as leading to different observations. This means that they coded in the $A$-array likelihood mappings, and in $C$ prior preference distributions.
 
--   In the capacities simulation, a single run of a POMDP with a slightly different model structure is used. This model can observes a perfect signal of whether the patients is alive, whether the model is testing, treating and a noised signal of the tumor state if the model has decided to test the patient on the given run. Its prior preferences are heavily skewed against observing a dead patient, somewhat against treating and little against treating. This means that it will have to balance the "cost" of all these actions". It is also handicapped further by the fact that the tumor signal is noised, and the resistance state, which must be inferred through the tumor signal is therefore doubly obfuscated. The likelihood mapping between however perfectly captures the maps the expected noise.
+This setup was deemed inadequate for the current experiment. Instead a model should be able to infer an causally upstream state-factor, such as the resistance state, through down-stream partially orbsevable state-fators, i.e. the tumor state. This approach should allow further complexify models, and add more causal nodes occluded causal nodes.
 
-### Changes to POMDP specification.
+Specifically, modifications to the transition probabilties in the generative model were made. Usually, three dimensional "B-tensors" describe expected transition probabilties within a state factor: one dimension the current state, one dimension for what ever action is chosen and third for the resulting state. For the present project another dimension was added, this dimension corresponds to the state of another state factor. Concretely, this meant that the tumor state factor had a fourth dimension corresponding to tumor transition probabilities for each resistance state. The expected transition probabilities could then be estimated by matrix multiplication between the B-tensor for the tumor state factor and the expected resistance level at the corresponding time point. One can imagine that instead of having only one B-tensor for the transition probabilities of the tumor state, one was created for each resistance level. The change simply amounts to taking a average of all these tensors weighted by the expected probabilities for each resistance state. This strategy was repeated for the resistance level, since decreases inthe resistance level depended on the tumor state. While rendering much of the pymdp functianality immediately unsuable, this strategy should be able to model arbitrarily complex dependencies between states. Hopefully, a robust implementation can be designed without overhauling pymd. It should be noted that this modification means that it is longer meaningless which order beliefs about states are evaluated and that this must be specified. For example for the present simulations, the effect of resistance level on the treatment efficacy was evaluated first, since this was evaluated first at at each step of the simulation.
 
-Hidden state factors do typically not affect each other at the state level. Instead their interactions are typically modelled as resulting from observations. This setup was deemed inadequate for the current experiment. It necessitated the that generative model could accurately model how the resistance state factor influences the probability of treatment succeeding. This was done in order to accurately portray issue of resistance levels generally being in accessible to current testing methodology and the evolutionary dynamics that are suspected to be at play in reducing resistance in real-world tumors.
+## Exploratory Simulation
 
-Accurately modelling how higher tumor levels makes decreases in resistance more likely was also crucial. Typically, transition probabilties in the generative models are constructed using three dimensional "B-tensors", which describe expected transition probabilties within a state factor: one dimension the current state, one dimension for what ever action is chosen and third for the resulting state.
+An exploratory simulation, where a single run of POMDP controlling treatments and testing was run to investigate the feasibility of using the modified POMDP scheme. This model could had to choose whether test and treat. It would always observe a perfect signal of whether the patients is alive, whether model is testing and whether treating was being applied. If the model decided to test, it would receive a signal of the tumor state. Its prior preferences were heavily against observing a dead patient, somewhat against treating and little against treating. This was done to simulate a cost to both treating and testing, This means that the model will have to balance the utility gained and lost "cost" of all these actions" while considering the potential information gain of each choice. The model was further handicapped by the noising the tumor signal. This means that the the resistance state, which must be inferred through the tumor signal is doubly obfuscated. However the likelihood mapping between mapped the expected noise in the signal of the tumor signal, and it perfectly knew the transition probabilities of the environment. The model was given uniform priors over initial states, meaning it had no knowledge at beginning of each run. The model evaluated the same set of predetermined considering `r num_policies` timesteps into the future timepoint. This was done to ease computation by limiting the search space. The policies consisted of two blocks of either testing or treating for three timesteps in a row for each combinitation of applying testing not at the timestep.
 
-For the present project another dimension was added, this dimension corresponds to the state of another state factor. Concretely, this meant that the tumor state factor had fourth dimension. By matrix multiplication the expectation over this fourth dimension is factored in. One could choose to view it as there are now as many three dimensional b-tensors for the tumor state factor as there are states in the resistance factor. Effectively, matrix multiplying these result in a probability weighted average of expected tumor transition probabilities, i.e. the expectation. However, it should be noted that it is not trivial the order in which states are evaluated and that this must be specified. This also resulted in much pymdp functionality breaking, since it was presumably built only with three dimensional b-tensors in mind.
+### Learning underlying hidden state
+
+The simulation run manages to keep the patient alive for `r exploratory_sim_length` timesteps and chose to test on `r num_tests` of these (see Fig. 1)
+
+```{r fig.cap="Figure 1. Figure 1. Shows a simulation run for explotary analysis."}
+source("sim_run_example.R")
+
+plot
+
+```
+
+The model seems to be somewhat sensibly applying treatment. Generally it refrains from applying treatment when the tumor state is low. Interestingly it applies treatment at the first timestep, despite the tumor state and resistance state are at their lowest possible values. Considering that the model has uniform priors about resistance state and tumor level, this means that it is maximally uninformed about both. Treating and testing would therefore immediately give information about both. Qualitively, the model also seems to prefer testing when treatment is being applied. This suggest that it first testing to be more worthwhile while also treating. Considering that testing during treatment not only provides information about the tumor state, but also the resistance state, this behavior is useful.
+
+A plot of the models beliefs about the resistance state at each timepoint (see Fig. 2) also shows that the its beliefs generally follow the development of the actual resistance level.
+
+```{r, fig.cap="Figure 2. Plot of the models belief about the reistance level at every timepoint"}
+
+source("resistance_beliefs_plot.R")
+plot 
+ 
+
+
+```
+
+All in all, the modification to POMPD structure seems to allow the model to infer an the underlying state of causally upstream state factor through a noised signal form of a downstream node.
+
+### Expected trajectories
+
+For each policy the model evaluates the expected trajectory of the hidden states. (See Fig. 3). These are easily accessible describe the models uncertainty, what it expects to happen under the best policy at each time point.
+
+```{r fig.cap=paste("Figure 3. Shows the expected trajectories for highest evaluated policy at timepoints",chosen_timesteps[1]), "and", chosen_timesteps[2]}
+source("single_model_trajectories plot.R")
+plot
+```
+
+The amount of "flip-flopping" on decisions can also be investigated, by examining what policy the model finds the most promising on each time step (see Fig. 4).
+
+```{r, fig.cap="Figure 4. Best policies at each timestep are overlaied."}
+source("single_run_overall_fep_policies.R")
+plot
+```
+
+Curiously, there is a long stretch, approximately from timesteps 30 - 39, where the model never considers treating to be the optimal course of action, even though the resistance level is low. The model also holds accurate beliefs about the reistance level at this timepoint (see Fig. 2). However, this is likely due to a combiniation of multiple things. First of all, there is a cost to treating, which means that the model generally prefers no to treat. It too underestimates the the tumor burden at this timepoint (see Fig. 5) and gets "caught off guard" by a sudden rise in the tumor level. Since there is a cost associated with testing, it is also hesitant to applying tests during this period. Since it only considers 6 timesteps into the future, it likely doesn't consider the consequences of being "wrong" about not needing to bring the tumor level down.
+
+```{r, fig.cap="Figure 5. The panel shows the probability the model assigns to the current tumor state at each timepoint."}
+source("SingleTrial_tumor_beliefs.R")
+plot
+
+
+```
+
+The excact "decision making" for each policy can be evaluated. Since each policy is evaluated for its EFE, which simply is combination of the expected utility penalized for expected uncertainty see (Fig 6.).
+
+```{r, fig.cap = "Figure 6. Free energy components. Note that policies are evaluated for the Negative Exepected Free Energy, meaning that more negative values are considered more apprioate courses of action."}
+source("FEPcomponents.R")
+plot
+
+```
+
+The free energy components reveal a number interesting decessiion making points. At first, the model, given its uniform priors, is very unceartain about outcomes, and deacreasing unceartinty weighs heavily in its decision making. This unceartinty also means that models beliefs that it is more likely to be in a risky situtation, and bringing down this risk weighs heaviliy. At the earlier indefitied pivotal period between timesteps 30-39, there is concerning lack of increase in the weight of the utility component. This could mean that the model is too concerned with avoiding both treating and testing. It its first from timesteps 40, where the model realizes the severity of the situation, i.e. the rising tumor level. (See Fig. 5). This analysis there warrants to strategies to increasing the models ability. Changing the prior preferences, to make testing and treatment "cheaper" in terms of utilty would hopefully. However, this simply treating and testing more would translate to actual costs both financial and too patient well-being. While it would be important that the prior preferences are tuned to costs in a clinical setting, it would probably be more fruitfull to give the model longer policies to consider. This would hopefully yield models that are better tuned to the risks of not detecting and controlling tumor levels at low values.
+
+## Performance against range bounded approach
+
+Performance simulation, where a range-bounded approach to managing the tumor is used, where the treatment is begun each time the tumor state increases above level 3, and is withdrawn when the tumor state drops below 2. 100 runs at 4 different probabilities of increasing the tumor state is run for maximally 200 timesteps. For each run, vectors of outcomes are pregenerated, meaning that vector of whether the tumor increases of length 200 is predetermined where each entry has the probability specified for the entire simulation. Likewise vectors are generated for treatment outcomes at each resistance level, and outcomes for resistance drops. This is done to ensure comparibility between the range-bounded approach and POMDP models that consider different future outcomes at different lengths. In these runs the tumor state is perfectly observable, meaning a tumor state always generates tumor observation that corresponds to hidden factor. The POMPD can only observe the tumor level, and its prior preferences are uniform over all tumor states except for the highest. These POMPDS only consider a combination of policies at each timestep. They can only consider treating or not treating for three timesteps in a row. The shortest horizon model only considers one of these blocks, while the medium considers two blocks of treating or not treating, for total horizon of 6 steps into the future. The longest horizon model considers three blocks for a total of 9 steps into the future. This is done to ease the computational burden, since it greatly reduces the total number of policies to be evaluated.
 
 # Results
+
+## Capabilities
 
 ## Performance of POMDPs vs ADT heuristic
 
@@ -182,75 +247,11 @@ plot +
 
 At more aggressive cancer rates, the simulation consistently to outperform the range bounded approach. The absoulute increase in timesteps decreases however.
 
-## Capabilities
-
-### Learning underlying hidden state
-
-The POMDP structure is capable of inferring an underlying hidden state: the resistance state. Even though this not directly observable, this can be inferred to how the tumor state responds to treatment. Applying treatment for longer time without any beneficial effect would suggest that the resistance level is high, while immediately observing that the tumor level decreases would suggest that the resistance level is low. At each timestep the POMDPs perform infer the most likely state of every state factor, given their current observation and prior beliefs. Through custom changes to the 'get_expected_states' function in PYMDP that allowed the models to consider how one hidden state factor (resistance factor) would influence another (the tumor factor).
-
-```{r}
-source("few_time_steps_res_beliefs.R")
-
-plot
-
-```
-
-The above plot shows the strength of beliefs in t probabilities for a subset of timesteps [30 - 34], and the red dot show the actual the resistance levels. A time progresses the resistance level increases, and the model adjusts its beliefs. While the tumor level doesn't increase durings this time_period, this would also signal the model that the resistance level is low. This is the case since the enviroment always has change of increasing the tumor state, but such an increase would be negated by succesful round of treatment.
-
-```{r}
-source("sim_run_example.R")
-
-plot
-
-```
-
-The entire run is plotted for the given. Only the tumor level is observable to the POMDP. It must combine its knowledge about how resistance level likely increases after applying treatment, and how the tumor level responds to treatment depenping on the the resistance level. While the model far from perfectly knows the resistance level. Model beliefs for the entire run is plotted.
-
-```{r}
-source("resistance_beliefs_plot.R")
-plot
-```
-
-The model begins fairly agnostic. Given that the model was initialized with a uniform prior over resistance states this makes sense. Thorought out the course of the simulation it then finds loweer values of resistance state more likely.
-
-### Beliefs, current/future and uncertainty is accessible
-
-This current simulated model used a slightly different implementation than those compared to performance of rangebounded therapy planning. While the those models had longer policy horizons, they didn't consider the entire space possible actions. A model with a shorter policy horizon that would instead search every single possible action four steps is plotted to investigate the structure of decision-making by the POMDP model. The enviroment was also more unceartain. Instead of featuring a 1-to-1 mapping of the observations of the tumor to actual tumor state, it recieved a noised signal. It must therefore. The beliefs about how tumor state will evolve as a consequence of the most promising policy at time step 14 is plotted, and the expectation of resistance states at t=24 is plotted too.
-
-```{r}
-source("single_model_trajectories plot.R")
-plot
-```
-
-Dotted vertical lines indicated the time-point for which the evaluation of expected states are extracted.
-
-### Policy evalutation
-
-```{r}
-source("single_run_best policy.R")
-plot
-```
-
-The above plot shows the highest evaluated policy at timestep 16 and at timestep 34. At timestep 16 not treatment is planned, and testing is withdrawn for next timestep but picked up again for reaminder of the period. For 34 treatment is suggested applied for three rounds. Note that policies are evaluated each timestep, and these plans are likely not finished. Instead a course of action is decided on each turn. The highest rated policy for each timestep is plotted
-
-```{r}
-source("single_run_overall_fep_policies.R")
-plot
-```
-
-The above plot doesnt show realized actions but cumultatiove best action from perspective of each time point. This means that for completely blank spots, there is no point where model thinks treating or testing would be the optimal course of action. This doesn't never happen for treating, but some periods of treatment are throught time best held withdrawn. A darker shade indicate that on multiple prior timesteps, the model thought acting would be best course of action. Excact decision making for each policy can also be extracted. Since each policy is evaluated for its EFE, its expected information and utility gains can be extracted
-
-```{r}
-source("FEPcomponents.R")
-plot
-
-```
-
 # Discussion
 
 ## What has this project found
 
-The present project tested a simple modification of Active Inference POMDPs in simulated environment designed to mimic the dynamics of adaptive therapy. The modification allowed the POMDP to model an underlying resistance state that controlled the efficacy of treatment, despite the underlying state not producing any observable signals itself. This underscores the prospective of using the paradigm of active inference generally to plan adaptive therapies, and in particular has shown that under simplifed circumstances, POMDPs could be a useful choice of model to implement active inference for real-time adaptive therapy control.
+The present project tested a simple modification to how POMDPs typically are implemented in Active Inference. This was done to investigate whether POMDPs could learn an control a hidden state that could only be inferred on the basis of its consequences on other states. This was done in a simulated environment designed to mimic the dynamics of adaptive therapy since resistance dynamics of cancers are not directly orbservable, but have to be inferred through treatment response. The modification was successfull, allowing the POMDP to model an underlying resistance state that controlled the efficacy of treatment, despite the underlying state not producing any observable signals itself. POMPDs were further tested against a range-bounded treatment strategy, and were found to outperfom the range-bounded strategy. The difference in performance increased as the aggresivity of tumor growth increased and the future time-horizon that the POMPDs considered at each time step. The finding underscores the prospective of using the paradigm of Active Inference in general to plan adaptive therapy, and in particular has shown that under simplifed circumstances, POMDPs could be a useful choice of model to implement Active Inference for real-time treatment decision making.
 
 Additionally, the paper demonstrates that active inference implementation of POMPS show a number of desirable qualities for adaptive therapy POMDPs:
 
@@ -258,48 +259,12 @@ Additionally, the paper demonstrates that active inference implementation of POM
 
 -   A second quality is the capacity to balance expected information gain is balanced against expected utility. The certainty of the model is incorpareted directly in selecting when to apply treatments and when to test. From these considerations suggest that there is more information to be gained from testing when treatment is being applied, since it provides a view into the underlying resistance dynamics. Immediate testing seem to suggest that the models are more likely to apply testing when also applying treatment. Another interesting corrolary is that a POMPD could believe that two patients have exactly the same tumor burden but suggest treatment for one, but and not the other. This a feature, not a bug. If the model is certain about an underlying state (e.g. a resistance for the models in the present paper) there is less gain in information from treating. On the other hand, if the model is uncertain about the resistance state, it might be worthwhile to treat, simply for gain in information. This is appropriate behavior, since it allows the model better is chances of keeping the patient alive in the future.
 
--   Another quality of models desired [@west2023] is the rigorous unceartainty. Since the POMDP's certainty about current and future states is easily extractable, this criteria is arguably met. Additionally, its "reasoning", i.e. free energy estimates can be examined for each action.
+-   Another quality of models desired [@west2023] is the rigorous uncertainty. Since the POMDP's certainty about current and future states is easily extractable, this criteria is arguably met. Additionally, its "reasoning", i.e. free energy estimates can be examined for each action.
 
 ## Future research
 
 While the results are initially promising, the simple nature of the simulation prohibits drawing any strong conclusions about whether active inference POMPDs eventually could come to be a good model choice in a clinical setting.
 
-The environment featured only discrete values. Since bio markers and dosage intensities often will be continuous space, some combination of binning continuous values to discrete values or building a model structure that can work with contious data is necessary. Deep-learning have for example been used to construct likelihood mappings and transition probabilities in POMDPs @çatal2020.
+To further investigate, whether POMDPs could apply to a clinical setting multiple problems will have to be solved. For example in the present study the environment featured only discrete values. Since bio-markers and dosage intensities likely will be continuous values, some combination of binning continuous values to discrete values or adapting he model structure to work with continuous data is necessary. Deep-learning have for example been used to construct likelihood mappings and transition probabilities in POMDPs @çatal2020 from the continous data. Another key issue, is determining a way to inform likelihood and transition probablities in a fashion that would be viable in a clinical setting. The present study, simply used the actual transition probabilities of the simulated enviroment, and depeding on the simulation run also used un-noised likelihood mappings. Possibly, simulations of cancer dynamics, such as [@zhang2017] could be used to inform transisition probabilities, and a clinical model could potentially readjust to patient data. The Active Inference implementation of POMDPs have a developed litterature on learning probabilities from data and even how to incorporate the information gain of learning transition and likelihood probabilities into decision-making ([@smith2022] and @dacosta2020]). Another key issue, is constructing a more rigourous benchmarking system for proposed models. In the present paper, the ranges of the compared range-bounded model, were selected fairly arbitrariliy. It produced convincing results during intial testing, and did manage to control tumor levels for substantial amount of time. However, a systematic method of comparing models is necessary, espicially considering the difficulty of real-world tests. No matter the choice of modelling framework, building a bench-marking suite must be crucial for the adaptive therapy disicpline. Considering that difficulty of real-world testing, we will have to maximize the infomration that can be extracted from simulation work. [@west2023] have produced an a detailed qualitative account of needed developments in mathematical models. Translating this account to a set of simulation environments would be extremely usefull. A number of usefull simulation-script propably already exists. @zhang2017 for example released their simulations from matlab. Wrapping already existing simulations into enviroments that can easily exchange actions and orbsevations. The API used in Gymnasium (formerly OpenAI Gym) [@towers2024] could for example be used to minimize the friction for non-oncology researchers. If experts in adaptive therapy were to predetermine a set of bench marks, it would also greatly ease the burden of outsiders to first identify what even would be a usefull contribution and instead free more time for them to implement it.
 
-## Would longer policy search be better
-
-Perhaps one could built a two-layer model. The bottom layer controls what goes inside the treatment-cycle, like the mountain-car controller. The top layer would the have to decide what of the different controllers to use. This
-
-## Only one range bound
-
-## Future Research
-
-### NESS
-
-Especially POMPDs but also other models have been used to model the decision of agents in active inference. Especially in psychopathology, human decision making has been modeled through these. This presents a fairly speculative, but interesting possibilty. It could potentially allow to approximate the decsision making of otherwise black box models. Perhaps if suitable controller could be designed for example by machine learning or another process leading to an opaque decision making process. POMPD should be fit table to its behavior and the model's decision making would thus become transparet. It would likely come with a cost to performance, but perhaps such a trading some performance for transparency could be worthwhile in a clinical setting.
-
-This approach obviously isn't any better than our ability to construct such a black-box model and evaluate is performance prior to clinical trials.
-
-### Priors over policies
-
-One could also enforce a prior over an adaptive therapy approach, making sure that the model would only deviate from this if its very certain. This could hopefully combine the benefits and robustness of the 50% rule of thumb wiht the capacities of active inference.
-
-### Continuous state space or binning illness
-
-Moving from continous biomarkers to discrete data will be neccesary. either by reformulating pompds out for the discrete state space, or by binning, transforming observations into discrete values. Perhaps by diemnstionality reducition such as PCA, deep-neural networks, or simply binning observations. For example a tumor state could correspond to a 10% increase in tumor burden. Considering that they grow exponentially, this could perhaps result in the states occuupying the same amount of time/width of the underlying continous distreibution.
-
-### Learning the transition parameters
-
-Learning the transistion parameters, could happen through some comibnation of learning on the fly and prespecifcation by experet/knowledge modelling. Deep-learning on simulation data could probably be used. Perhaps also on already fitted data.
-
-### Searching Policy Space better
-
-### 
-
-### Demonstrating the usefullness of models in adaptive therapy
-
-An approach to demonstarting the usefullness of POMDP active inference model could be to show that it manages to control tumor progression succesfully on more realisting simulations, such as the Zhang et al. 2017 model. Either learning likelihood and transistion probabilities on the fly or specifiying them in a manner before hand that could be done in clinical setting too would be neccessary. Even more impressive would be a model that would given no chance to act, but only observe, accurately predict the actual outcomes of clinical data. For example the trial data reported. If this model would make interesting post-dictions, about better courses of actions, this would be severly interesting. It would still be hard to beat a rct.
-
-### Other fep models
-
-### 
+If an easy to use bench-marking suite existed, POMPDs could also be "reverse-engineered" from more complex models. If a black-box model, like a neural network can be shows can be shown to succesuffly control treatment application in more complicated simulations of cancer dynamics. This would presumably not be too difficult considering that POMPDs have often been fitted to human decision-making in computational psychiatry. The same techniques could potentially allows us translate the decision making of a black-box model into the structure of a POMPD, thus combining the performance of the black-box model with the transparency of POMPD structure.

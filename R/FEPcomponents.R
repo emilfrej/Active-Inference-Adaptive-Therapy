@@ -9,10 +9,10 @@ plot <- ggplot(fep_components, aes(x = timestep)) +
   geom_bar(aes(y = expected_utility, fill = "Expected Utility"), stat = "identity")  +
                  
  #plot expected info gain
-  geom_bar(aes(y = expected_info_gain, fill = "Expected Information Gain"), stat = "identity") +
+  geom_bar(aes(y = expected_info_gain, fill = "Expected Uncertainty"), stat = "identity") +
   
   #set colors to yellow and purple
-  scale_fill_manual(values = c("Expected Utility" = "yellow", "Expected Information Gain" = "purple")) +
+  scale_fill_manual(values = c("Expected Utility" = "yellow", "Expected Uncertainty" = "purple")) +
   
   #plot a hline at 0
   geom_hline(yintercept = 0, linetype = 15, alpha = 1) +

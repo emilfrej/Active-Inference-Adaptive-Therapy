@@ -1,5 +1,20 @@
+single_trial_tumor_beliefs_long <- single_trial_tumor_beliefs %>%
+  mutate(tumor_state = single_trial_full_data$tumor_state,
+         #get entropy levels
+         resistance_entropy = single_trial_full_data$tumor_entropy,
+         #make a timestep column
+         timestep = 1:nrow(single_trial_tumor_beliefs) - 1)  %>% 
+  #select all but the first column
+  select(c(-1)) 
+
+#Turn into long format
+single_trial_tumor_beliefs_long <- single_trial_tumor_beliefs_long %>%
+  pivot_longer(cols = c(1:6), values_to = "belief")  %>% 
+  mutate(state_belief = as.numeric(gsub("t", "", name)) - 1)
+
+
 #Plot the resistance level through time as x-axis
-plot <- ggplot(single_trial_resistance_beliefs, aes(y = resistance_level, x = timestep)) +
+plot <- ggplot(single_trial_tumor_beliefs_long, aes(y = tumor_state, x = timestep)) +
   
   #plot actual level as empty cicles
   geom_line(aes(color = "Resistance Level"), linetype = 2, show.legend = T) +
@@ -9,7 +24,7 @@ plot <- ggplot(single_trial_resistance_beliefs, aes(y = resistance_level, x = ti
   
   #remove the colour for resistance level 
   guides(color = guide_legend(title = NULL)) +
-
+  
   ylim(0, 5) +
   
   new_scale_color() +
@@ -24,17 +39,12 @@ plot <- ggplot(single_trial_resistance_beliefs, aes(y = resistance_level, x = ti
   
   guides(size = "none") +
   
-
   
   #add the model belief as colored plot depeding on probability
-  labs(title = "Model Beliefs of Resistance Level",
+  labs(title = "Model Beliefs of Tumor Level",
        x = "Time",
-       y = "Resistance State",
+       y = "Tumor State",
        color = "Probability According to Model") 
 
 #move legend below
 plot <- plot + theme(legend.position = "bottom")
-
-
-ggsave("../visualizations/Model_Beliefs_about_Resistance.png", width = 10, height = 6, units = "in")
-
