@@ -1,8 +1,8 @@
 ---
 title: "SocultPaperV6"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 date: "2024-05-19"
 bibliography: references.bib
 ---
