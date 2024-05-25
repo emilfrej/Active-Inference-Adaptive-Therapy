@@ -1,8 +1,8 @@
 ---
 title: "SocultPaperV6"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 date: "2024-05-19"
 bibliography: references.bib
 ---
@@ -40,7 +40,7 @@ Worldwide, cancer is the cause of 1 out of 6 deaths. An estimated 90% of these c
 
 > *" in which almost all cells within the cancer play, for example, “paper.” It is clearly advantageous for the treating physician to play “scissors.” Yet, if the physician only plays “scissors,” the cancer cells can evolve to the unbeatable resistance strategy of “rock.”"* [@stanková2019]
 
-To exploit this assymetry *Adaptive Therapy* (AT) controls the intra-tumoral evolutionary dynamics by leveraging a likely fitness costs that cancer cells incur when evolving mechanisms to resist drugs. For example, it has been shown that tumor cells can mutate to increase the expression of the PGP membrane pump, which uses ATP to expel drugs from the cell. While this makes the cell more resistant to treatment, it also comes at a metabolic cost. @gatenby2009 found that PGP activity was responsible for approximately 50% of cell metabolism. If resistant and non-resistant cells are competing for space and resources, drug-sensitive cells should, over time, outcompete resistant cells since they can devote more metabolism to cell proliferation. Thus, AT utilizes Darwinian competition to make cancer suppress itself, a strategy that potentially could make cancer a controllable chronic disease.
+To exploit this assymetry *Adaptive Therapy* (AT) controls the intra-tumoral evolutionary dynamics by leveraging a likely fitness costs that cancer cells incur when evolving mechanisms of drug resistance. [@gatenby2009]. If resistant and non-resistant cells are competing for space and resources, drug-sensitive cells should, over time, out-compete resistant cells. AT thereby utilizes Darwinian competition to make cancer suppress itself, a strategy that potentially could make cancer a controllable chronic disease.
 
 ![From Zhang et al. 2023. Panel A shows a typical "Maximal Tolerable Dose" treatment protocol. While the initial response in tumor burden is promising, a compettive release of resistant cells ensures. Panel B shows AT approach with a small tumor burden. Panel C shows AT with a high tumor burden, which has been theorized to further increase the suppression of resistance cells through darwinian competition.](images/Screenshot%202024-05-20%20at%2008.15.19.png){width="400"}
 
