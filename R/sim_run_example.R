@@ -40,8 +40,7 @@ plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
   
   
  
-  labs(s
-       x = "Time",
+  labs(x = "Time",
        y = "Tumor and Resistance State") 
 
 #save plot 

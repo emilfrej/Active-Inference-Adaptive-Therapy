@@ -6,4 +6,5 @@ plot <- ggplot(contrasted_sim_lengths, aes(x = change_in_percent, fill = contras
   geom_vline(xintercept = 0, linetype = "dashed", alpha = 0.5) +
   labs(title = "POMDP performance against ADT",
        x = "Difference against ADT in same run",
-       y = "Density")
+       y = "Density") +
+  
