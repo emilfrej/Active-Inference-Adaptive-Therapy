@@ -133,9 +133,6 @@ A plot of the models beliefs about the resistance state at each time-point (see 
 
 source("resistance_beliefs_plot.R")
 plot 
- 
-
-
 ```
 
 All in all, the modification to POMPD structure seems to allow the model to infer an the underlying state of causally upstream state factor through a noised signal form of a downstream node.
