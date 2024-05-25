@@ -3,8 +3,7 @@
 plot <- ggplot(sim_lengths_long, aes(x = sim_length, fill = strategy, color = strategy)) +
   geom_density(alpha = 0.1) + 
   facet_wrap(~growth_rate) +
-  labs(title = "POMDP performance against range-bounded strategy (RB)",
-       x = "Simulation Length",
+  labs(x = "Simulation Length",
        y = "Density")  +
 
 #move the legend below the plot

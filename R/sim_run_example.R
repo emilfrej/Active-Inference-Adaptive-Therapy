@@ -30,7 +30,7 @@ plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
   scale_color_manual(values = c("black", "red")) +
   
   #overlay testing points
-  geom_point(data = testing_times, aes(x = timestep, y = 0, shape = "Testing"), size = 1) +
+  geom_point(data = testing_times, aes(x = timestep, y = 4.5, shape = "Testing"), size = 1) +
   
   #set other x shape for testing
   scale_shape_manual(values = c("Testing" = 4)) +
@@ -40,7 +40,7 @@ plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
   
   
  
-  labs(title = "Tumor and Resistance Level Through Time",
+  labs(s
        x = "Time",
        y = "Tumor and Resistance State") 
 
