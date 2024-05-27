@@ -675,7 +675,7 @@ also hesitant to apply tests during this period. Because it only
 considers six timesteps into the future, it likely doesn't consider the
 long-term consequences of not reducing the tumor level.
 
-```{r tumor beliefs, fig.cap= Plot of Agent's beliefs about patients tumor state.'}
+```{r tumor beliefs, fig.cap= "Plot of Agent's beliefs about patients tumor state."}
 source("SingleTrial_tumor_beliefs.R") 
 plot 
   
@@ -686,7 +686,7 @@ The exact "decision-making" for each policy can be evaluated. Each
 policy is evaluated for its EFE, which is a combination of the expected
 utility penalized for expected uncertainty (see Fig. 6).
 
-```{r fep components}
+```{r fep components, fig.cap= "Plot of FEP Components for top policy at each timepoint."}
 
 source("FEPcomponents.R")
 plot
