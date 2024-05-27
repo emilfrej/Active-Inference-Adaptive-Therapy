@@ -330,7 +330,7 @@ In the following example of an exploratory simulation run, the agent
 managed to keep the patient alive for `r exploratory_sim_length`
 time-steps and chose to test on `r num_tests` of these (see Fig. 2).
 
-```{r fig.cap= "A simulation run for exploratory purposes. The simulation ended before time-step 200 since the simulated patient "died" when the tumor state factor reached the state 5."}
+```{r sim run, fig.cap= "A simulation run for exploratory purposes. The simulation ended before time-step 200 since the simulated patient \"died\" when the tumor state factor reached the state 5."}
 source("sim_run_example.R")
 plot
 ```
@@ -353,7 +353,7 @@ resistance state at each time-point (see Fig. 3) shows that its beliefs
 about the resistance state generally follow the development of the
 actual resistance state despite the lack of direct signal.
 
-```{r, fig.cap="Agents beliefs about the patient's resistance  state at every timepoint. Size and color of circles indicate the probability that the agent assigns to each value of the state at a given time-step."}
+```{r res beliefs, fig.cap="Agents beliefs about the patient's resistance  state at every timepoint. Size and color of circles indicate the probability that the agent assigns to each value of the state at a given time-step."}
 
 source("resistance_beliefs_plot.R") 
 plot
@@ -400,7 +400,7 @@ each combination of tumor state, resistance state, and treatment state
 to ensure comparability between the tested agents and the RB strategy at
 the level of each run.
 
-```{r, fig.cap= "Simulated observed patient survival times for each POMPD agent and the range-bounded strategy."}
+```{r sim lengths, fig.cap= "Simulated observed patient survival times for each POMPD agent and the range-bounded strategy."}
 #print densities
 source("sim_lengths_densities_full.R")
 
@@ -420,7 +420,7 @@ percentage difference in survival from switching from the baseline
 RB-strategy to the long horizon POMPD are computed for each run (see Fig
 5.).
 
-```{r, fig.cap="Change in percent of between the range-bound approach and the longest horizon POMPD for different tumor growth rates."}
+```{r constrasts, fig.cap="Change in percent of between the range-bound approach and the longest horizon POMPD for different tumor growth rates."}
 source("contrasted_sim_length_max_horizon.R")
 
 plot
@@ -611,7 +611,7 @@ The transition dynamics of the simulated environments were.
 
 Exploratory simulation:
 
-```{r, fig.cap= "Table of Simulation parameters used. R correponds to specific resistance States and T to specific tumor states. For example \"T2 Chance of Resistance Decrease\" denotes the probability of the resistance state decreasing given that the resistance state was 2 (and treatment was applied)."}
+```{r sim params, fig.cap= "Table of Simulation parameters used. R correponds to specific resistance States and T to specific tumor states. For example \"T2 Chance of Resistance Decrease\" denotes the probability of the resistance state decreasing given that the resistance state was 2 (and treatment was applied)."}
 # construct vectors of probabilites used in simulation and a vector of var names to make df. This is used print a kable table
 tumor_increase_prob = 0.3
 resistance_increase_prob = 0.5 
@@ -651,20 +651,13 @@ knitr::kable(sim_settings_df, col.names = c("Outcome", "Probability"), align = "
 # Appendix C: A Dissection decision-making by POMPD
 
 For each policy, the agent evaluates the expected trajectory of the
-hidden states (see Fig. x). These evaluations provide insights into the
-model's uncertainty and what it expects to happen under the best policy
-at each time point.
+hidden states. These evaluations provide insights into the model's
+uncertainty and what it expects to happen under the best policy at each
+time point. The amount of "flip-flopping" on decisions can also be
+investigated by examining what policy the model finds the most promising
+at each time step (see Fig. 4).
 
-```{r}
-source("single_model_trajectories plot.R")
-plot
-```
-
-The amount of "flip-flopping" on decisions can also be investigated by
-examining what policy the model finds the most promising at each time
-step (see Fig. 4).
-
-```{r}
+```{r overall policies}
 source("single_run_overall_fep_policies.R")
 plot
 ```
@@ -682,9 +675,10 @@ also hesitant to apply tests during this period. Because it only
 considers six timesteps into the future, it likely doesn't consider the
 long-term consequences of not reducing the tumor level.
 
-```{r}
-source("SingleTrial_tumor_beliefs.R")
-plot
+```{r tumor beliefs, fig.cap= Plot of Agent's beliefs about patients tumor state.'}
+source("SingleTrial_tumor_beliefs.R") 
+plot 
+  
 
 ```
 
@@ -692,7 +686,7 @@ The exact "decision-making" for each policy can be evaluated. Each
 policy is evaluated for its EFE, which is a combination of the expected
 utility penalized for expected uncertainty (see Fig. 6).
 
-```{r}
+```{r fep components}
 
 source("FEPcomponents.R")
 plot

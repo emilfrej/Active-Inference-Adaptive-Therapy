@@ -17,10 +17,14 @@ single_trial_tumor_beliefs_long <- single_trial_tumor_beliefs_long %>%
 plot <- ggplot(single_trial_tumor_beliefs_long, aes(y = tumor_state, x = timestep)) +
   
   #plot actual level as empty cicles
-  geom_line(aes(color = "Resistance Level"), linetype = 2, show.legend = T) +
+  geom_line(aes(color = "Tumor State"), linetype = 1, show.legend = T) +
   
   #set resistance level color to black
-  scale_color_manual(values = c("black")) +
+  scale_color_manual(values = c("Red")) +
+  
+
+  
+  theme(legend.position = "bottom") +
   
   #remove the colour for resistance level 
   guides(color = guide_legend(title = NULL)) +
@@ -37,14 +41,12 @@ plot <- ggplot(single_trial_tumor_beliefs_long, aes(y = tumor_state, x = timeste
   scale_color_gradient(low = "blue", high = "red") +
   scale_size(range = c(0.001, 7)) +
   
-  guides(size = "none") +
+  #remove 
+  labs(x = "Time",
+       y = "Patient State Values",
+       color = "")  +
   
-  
-  #add the model belief as colored plot depeding on probability
-  labs(title = "Model Beliefs of Tumor Level",
-       x = "Time",
-       y = "Tumor State",
-       color = "Probability According to Model") 
+  guides(size = "none") 
 
-#move legend below
-plot <- plot + theme(legend.position = "bottom")
+
+

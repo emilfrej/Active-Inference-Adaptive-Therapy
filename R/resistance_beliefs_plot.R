@@ -31,7 +31,7 @@ plot <- ggplot(single_trial_resistance_beliefs, aes(y = resistance_level, x = ti
        y = "Patient State Values",
        color = "")  +
 
-  theme(legend.position = "bottom") 
+  theme(legend.position = "bottom")  
 
 
 
