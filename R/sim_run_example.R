@@ -15,10 +15,10 @@ testing_times <- single_trial_full_data %>%
 plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
   
   #add line for tumor
-  geom_line(aes(color = "Tumor Level")) +
+  geom_line(aes(color = "Tumor State")) +
   
   #add line for resistance state
-  geom_line(aes(y = resistance_state, color = "Resistance Level" ), linetype = 2) +
+  geom_line(aes(y = resistance_state, color = "Resistance State" ), linetype = 2) +
   
   #add shaded areas for treatment on
   geom_rect(data = treatment_shading, aes(xmin = timestep_minus_1, xmax = timestep,  ymin = -Inf, ymax = Inf, fill = "Treating"), inherit.aes = FALSE, , alpha = 0.4, label = "Treatment is given")  +
@@ -41,7 +41,7 @@ plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
   
  
   labs(x = "Time",
-       y = "Tumor and Resistance State") 
+       y = "Patient State Values") 
 
 #save plot 
 ggsave("../visualizations/Tumor_and_Resistance_Levels.png", width = 10, height = 6, units = "in")

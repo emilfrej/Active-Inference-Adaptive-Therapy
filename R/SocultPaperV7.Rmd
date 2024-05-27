@@ -4,8 +4,8 @@ title: "Actively Inferring Adaptive Therapy: Modifying Partially Observable Mark
 author: "Emil Frej Brunbjerg (202105405)"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
   bookdown::pdf_book: null
   base_format: pdf_document
 bibliography: references.bib
@@ -181,8 +181,9 @@ joint probability is can factorized into multiple categorical
 probability distributions. These describe likelihood mappings between
 signals and specific states of the environment, transition
 probabilities, and a desired probability of making certain observations
-(see appendix A for an in-depth description of how the joint probability
-is factorized) [@smith2022]. [^1]
+(see appendix A for an in-depth description of how an agents generative
+model is specified by factorizing the joint probability) [@smith2022].
+[^1]
 
 [^1]: The Python package pymdp [@heins2022] has numerous tutorial
     notebooks for implementing POMPDs in Python. @smith2022 describes
@@ -190,7 +191,7 @@ is factorized) [@smith2022]. [^1]
     detail, albeit in MATLAB, and @dacosta2020 provides an in-depth
     mathematical account of POMPDs in Active inference.
 
-## The aim of this paper
+## Aim of this Paper
 
 The treatment decisions used in the pilot trial reported by @zhang2017
 were based on a well-informed heuristic about how resistance dynamics
@@ -234,12 +235,13 @@ higher tumor states increased the chance of lowering resistance.
 
 ## Modifications to the POMDP Scheme
 
-Typically when constructing AI POMDPs, different state factors states
-such as resistance factorw and tumor factors are not modeled to affect
-each other directly. Instead, the interactions resulting from
-combinations of different states are modeled as leading to different
-observations. This means that interactions between types of states would
-be coded in the likelihood distribution.
+Typically when constructing AI POMDPs, different state factors (i.e
+types of states) such as the resistance factor and tumor factors are not
+modeled to affect each other directly. Instead, the interactions
+resulting from of particular specific states across state types are
+modeled as leading to different observations. This means that
+interactions between types of states would be coded in the likelihood
+distribution.
 
 This setup was deemed incompatible with the environment that the agents
 had to model since it wouldn't let agents infer how changes in
@@ -310,7 +312,7 @@ state, which had to be inferred through the tumor signal, was doubly
 obfuscated.
 
 However, the agent's generative model did perfectly map the expected
-noise in the tumor signal, and its inital expected transition
+noise in the tumor signal, and its initial expected transition
 probabilities were identical to the actual transition probabilities of
 the environment. Additionally, the agent was given uniform priors over
 initial states, meaning it had no knowledge of the configuration of
@@ -322,47 +324,48 @@ policies consisted of two blocks of either testing or treating for three
 time-steps in a row for permuted each possible sequence of applying
 testing or not for the time horizon of the policies.
 
-### Learning the Resistance State
+### Inferring the Resistance State
 
 In the following example of an exploratory simulation run, the agent
 managed to keep the patient alive for `r exploratory_sim_length`
 time-steps and chose to test on `r num_tests` of these (see Fig. 2).
 
-```{r fig.cap= "A simulation run for exploratory purposes."}
+```{r fig.cap= "A simulation run for exploratory purposes. The simulation ended before time-step 200 since the simulated patient "died" when the tumor state factor reached the state 5."}
 source("sim_run_example.R")
 plot
 ```
 
 The agent appears to be somewhat sensibly applying treatment, but it
 doesn't apply the treatment at a pivotal period approximately between
-steps 30 and 39. Generally, it refrains from applying treatment when the
-tumor state is low and applies treatment when the tumor state is high.
-Interestingly, it does apply treatment at the first timestep, despite
-the tumor state and resistance state being at their lowest possible
-values. Considering that the generative model had uniform priors over
-both resistance state and tumor states, this behavior is more
-appropriate from the perspective of the agent, since treating and
-testing would immediately provide information about both states.
-Qualitatively, the model also seems to prefer testing when treatment is
-being applied. This suggests that it finds testing to be more worthwhile
-while also treating. A plot of the model's beliefs about the resistance
-state at each time-point (see Fig. 3) shows that its beliefs about the
-resistance state generally follow the development of the actual
-resistance state despite the lack of direct signal.
+steps 30 and 39. Interestingly, the agent decides to apply treatment at
+the first timestep, despite the tumor state and resistance state being
+at their lowest possible values. Considering that the generative model
+had uniform priors over both resistance state and tumor states, this
+behavior is appropriate from the perspective of the agent, since
+treating and testing would immediately provide information about both
+states. The model further seemed to prefer testing when treatment is
+being applied. This suggests that it found testing to be more worthwhile
+while also treating. Given that by combining treatment and testing, the
+agent can learn about both the resistance and tumor state factors, all
+else being equal, the expected information gain should therefore be
+increased by this behavior. A plot of the model's beliefs about the
+resistance state at each time-point (see Fig. 3) shows that its beliefs
+about the resistance state generally follow the development of the
+actual resistance state despite the lack of direct signal.
 
-```{r, fig.cap="Plot of the model's belief about the resistance level at every timepoint"}
+```{r, fig.cap="Agents beliefs about the patient's resistance  state at every timepoint. Size and color of circles indicate the probability that the agent assigns to each value of the state at a given time-step."}
 
-source("resistance_beliefs_plot.R")
-plot 
+source("resistance_beliefs_plot.R") 
+plot
+
+
 ```
 
 In summary, the modification to POMPD structure appears to have allowed
-the agent to otherwise occluded resistance state by selectively applying
-treatment and collecting noised signals of the tumor burden. While the
-results are intially promising, the particular agent does make
-questionable choices regarding the timing of treatment. The
-decision-making behind these choices is dissected in-depth in the
-appendix.
+the agent to infer the occluded resistance states in real-time. While
+the results are initially promising, the particular agent did make
+questionable choices regarding the timing of treatment. It's
+decision-making is dissected in-depth in Appendix C.
 
 ## Performance of POMPDs against a Range-Bounded Strategy
 
@@ -370,32 +373,34 @@ Several agents instantiated as modified POMPDs were tested against a
 range-bounded strategy. This was done to benchmark the performance of
 POMPDs against a strategy inspired by the treatment protocol used in the
 pilot clinical trial [@zhang2017]. The generative models used were
-simplified for ease of computation POMPDs and as a result, they observed
-a noiseless signals of the tumor state and whether treatment was being
-applied at every timestep. They were also only given prior preferences
-for observations of tumor states. The preferences were uniform over all
-survivable tumor states, and the probability of the highest tumor state
-was set to 0. The following three agents were tested:
+simplified for ease of computation — they only observed a noiseless
+signal of the tumor state and whether treatment was being applied at
+every time-step. They were also only given prior preferences for
+observations of tumor states. The preferences were uniform over all
+survivable observations of survivable tumor burdens, and the probability
+of the observing the maximal burden was set to 0. The following three
+agents were tested:
 
 -   A short policy horizon POMPD that could consider a block of treating
     or not treating for the next three steps.
 -   A medium policy horizon POMPD that could consider two blocks of
     treating or not treating for three steps, yielding a total horizon
     of 6 timesteps.
--   A long policy horizon model that could consider four blocks of
+-   A long policy horizon POMPD that could consider four blocks of
     treating or not treating for three steps, resulting in a total
     horizon of 12 steps.
 
-The agents were benchmarked on four different "tumor aggressivity
-settings". The tested tumor growth rates were 0.1, 0.3, 0.5, and 0.7
-probability of increasing the tumor state at each timestep. For each
-setting, 100 simulation runs were done. For each run, the environment
-was predetermined by generating 200 outcome variables for each
-combination of tumor state, resistance state, and treatment state to
-ensure comparability between the tested agents and the RB strategy at
+The agents were benchmarked on four different tumor growth rates, to
+investigate how a cancer's aggresiveness would affect the agent's
+ability to keep patients alive. The tested tumor growth rates were 0.1,
+0.3, 0.5, and 0.7 probability of an increase in tumor state at each
+timestep. For each setting, 100 simulation were run. For each run, the
+environment was predetermined by generating 200 outcome variables for
+each combination of tumor state, resistance state, and treatment state
+to ensure comparability between the tested agents and the RB strategy at
 the level of each run.
 
-```{r, fig.cap= "Simulated patient survival times for each agent and baseline strategy."}
+```{r, fig.cap= "Simulated observed patient survival times for each POMPD agent and the range-bounded strategy."}
 #print densities
 source("sim_lengths_densities_full.R")
 
@@ -408,14 +413,12 @@ plot +
 
 ```
 
-\pagebreak
-
 At the lowest tumor growth rate, nearly all the runs reached the maximal
-length (see Fig. 7). On the other runs, the long horizon model also
+length (see Fig. 4). On the other runs, the long horizon model also
 appears to be slightly outperforming the others. Contrasts as the
 percentage difference in survival from switching from the baseline
 RB-strategy to the long horizon POMPD are computed for each run (see Fig
-5.).coc
+5.).
 
 ```{r, fig.cap="Change in percent of between the range-bound approach and the longest horizon POMPD for different tumor growth rates."}
 source("contrasted_sim_length_max_horizon.R")
@@ -429,89 +432,80 @@ seems to perform similarly to the RB strategy. However, as the tumor
 growth risk increases, the POMPD agent increasingly shows large
 percentage improvements compared to the RB strategy. Potentially a
 consequence of a greater need for proactive action when tumor dynamics
-accelerate, which in turn would favor models that explicitly model how
+accelerate, which in turn could favor models that explicitly model how
 treatment will effect future resistance dynamics.
 
 # Discussion
 
 ## Findings
 
-This project tested a simple modification to how POMDPs are typically
-implemented in AI to investigate whether POMDPs could learn and control
-an environment inferred based on their consequences on other states. In
-a simulated environment designed to mimic the dynamics of AT, the
-modification successfully allowed agents instantiated as POMDPs to model
-an underlying resistance state that controlled the efficacy of cancer
-treatment, despite the underlying state not producing observable signals
-itself. Additionally, costs to testing and treating implemented and
-crucially these could be holistically integrated using free energy
-minimization to trade-off utility for reductions in uncertainty.
+This project tested a modification to how POMDPs are typically
+implemented in AI to investigate whether POMDPs could infer and control
+state factors that don't emit signals, but instead influence other state
+factors. This was accomplished. In a simulated environment designed to
+mimic the dynamics of AT, the modification allowed agents instantiated
+as POMDPs to model an underlying resistance state that controlled the
+efficacy of cancer treatment, despite the underlying state not producing
+observable signals itself.
+
+Additionally, costs to testing and treating were implemented and could
+be quantitatively integrated using free energy minimization to trade-off
+utility for reductions in uncertainty. Considering that key AT
+reasearches have reported that future models of AT must be able to
+balance drug toxicity, tumor burdens and resistance dynamics
+[@west2023], seeking inspiration in the AI paradigm is potentially
+promising path for future modelling work.
+
 Modified POMPDs were further tested against a range-bounded treatment
 strategy inspired by a pilot clinical trial using AT, and were found to
 outperform the range-bounded strategy substantially. The gap in
-performance was larger in simulations of aggressive tumor growth rates
+performance was largest in simulations of aggressive tumor growth rates
 and for agents with an ability to consider longer future courses of
-action. These findings underscore the potential of using the AI paradigm
-in real-time planning of treatment and testing decisions in AT, and,
-albeit under simplified circumstances, the modified AI POMDP is a
-promising model choice for improving real-time patient-specific
-treatment decisions in AT.
+action. These results in concert with a recent review of needed
+developments in AT models [@west2023] underscore the potential of
+drawing inspiration in the AI paradigm for real-time planning of
+treatment and testing decisions. Perhaps the modified POMDP could be a
+useful model architecture that,with refinement, could come to improve
+real-time patient-specific therapy treatment decisions.
 
-Additionally, this paper demonstrates that the AI implementation of
-POMPDs shows several desirable qualities for AT:
+This paper implemented a POMPD capable of combining multiple actions,
+i.e. treating and testing. Only computation and our ability to specify
+likelihood and transition probabilities prohibit constructing more
+complex generative models. Potentially opening the door for combining
+multi-drug therapies with multiple types of testing and increasingly
+detailed models of real-time tumor biology — all of which are desiderata
+reported by @west2023.
 
--   The modified AI POMPDs show great flexibility in their ability to
-    specify the causal structure of an environment. Computation and our
-    ability to inform likelihood and transition dynamics are the only
-    limits to the complexity that can be specified. This paper
-    implemented a POMPD capable of combining multiple decisions, such as
-    treating and testing, More complex generative models could include
-    multiple types testing and treatment opening the door for multidrug
-    therapies, while integrating multiple types of testing and
-    increasingly detailed modeling of real-time tumor biology. But to
-    avoid having to figure out how quarks and leptons might interact to
-    produce a cancer cell, we will have to limit our desire for higher
-    causal resolution at some point. While simulating finer-grained
-    mechanisms of tumor biology likely will benefit clinical adaptions
-    of AT, abstracting away physical mechanisms as random fluctuations
-    inherent to the modeled environment will at some point be necessary.
-    Models for real-time treatment decisions will therefore have to need
-    the capacity to model the uncertainty of the environment and account
-    for it in decision-making.
+But to avoid having to figure out how quarks and leptons might interact
+to produce a cancer cell, we will have to limit our desire for higher
+causal resolution at some point. While simulating finer-grained
+mechanisms of tumor biology likely will benefit clinical adaptions of
+AT, abstracting away physical mechanisms as random fluctuations inherent
+to the modeled environment will eventually be necessary. Models for
+real-time treatment decisions will therefore have to need the capacity
+to model the uncertainty of the environment and account for it in
+decision-making .
 
--   Another quality is the capacity to balance expected information gain
-    against expected utility. The certainty of the model is incorporated
-    directly in selecting when to apply treatments and when to test.
-    This suggests that there is more information to be gained from
-    testing when treatment is being applied, as it provides a view into
-    the underlying resistance dynamics. Immediate testing seems to
-    suggest that the models are more likely to apply testing when also
-    applying treatment. Another interesting corollary to basing therapy
-    plans in AI is that POMPD solutions could believe that two patients
-    have exactly the same tumor burden but suggest treatment for one
-    patient and not the other. This is a feature, not a bug. If certain
-    about an underlying state (e.g., resistance in the models in this
-    paper), there will be expected information gained from treating. Yet
-    if the model is uncertain about the resistance state of the other
-    patient, it might be worthwhile to treat simply to gain information.
-    This perspective slurs the line between testing and treating and
-    drastically alters the decisions on when to collect real-time data
-    patient data by trading uncertainty and utility in a quantitative
-    fashion.
+Another quality of the AI paradigm is its ability to quantitavely
+incorporate expected utility and unceartinty when selecting actions.
+Basing therapy planning in AI models would blur the line between testing
+and treating. For example, models could correctly believe that two
+patients have exactly the same tumor burden but suggest treatment for
+one patient and not the other. This is a feature, not a bug. If a model
+is certain in its beliefs about one patient's resistance dynamics, the
+expected gain in information will be smaller. Yet if the model is
+uncertain about the resistance dynamics of the other patient, it might
+be worthwhile to treat simply for the information gain. Curiously, this
+could result in two patients with exactly the same tumor burden, but
+only one of them should receive treatment. Factoring in current and
+expected uncertainty would therefore drastically alter how to optimally
+collect real-time data patient data.
 
--   Another key quality of models desired by @west2023 is the ability to
-    carefully monitor the uncertainty of outcomes. Given a pre-specified
-    generative model, the uncertainty of both current states, and
-    expected outcomes can easily be extracted and interrogated (See
-    appendix C for examples).
-
-## Future Research
+## Suggestions for Future Research
 
 While the results are initially promising, the simple nature of the
 simulated clinical setting prohibits drawing any strong conclusions
-about the promise of using AI POMPDs in a clinical setting. For example,
-they might simply be too computationally expensive to be practically
-viable for more complex generative models.
+about the promise of using AI POMPDs in a clinical setting.
 
 To further investigate whether POMDPs could viably be applied in a
 clinical setting, multiple problems will need to be solved. For example,
@@ -519,44 +513,39 @@ in the present study, the environment featured only discrete values.
 Since biomarkers and dosage intensities will likely take continuous
 values, some combination of binning continuous values to discrete values
 or adapting the model structure to work with continuous data is
-necessary. Deep learning has been used to construct likelihood mappings
-and transition probabilities in POMDPs from continuous data
-[@çatal2020]. Another key issue is determining a way to inform
-likelihood and transition probabilities in a fashion that would be
-viable in a clinical setting. The present study used the actual
-transition probabilities of the simulated environment and, depending on
-the simulation run, noiseless likelihood mappings. Possibly, simulations
-of cancer dynamics, such as those by @zhang2017, could be used to inform
-transition probabilities, and a clinical model could potentially
-readjust to patient data. The AI implementation of POMDPs has developed
-literature on online learning of the categorical probability
-distributions needed to accurately represent the environment. Even the
-potential information gained form learning transition and likelihood
-probabilities can be factored in to decision-making ([@smith2022] and
-@dacosta2020]).
+necessary. In the face of similar constraints, deep learning has been
+used to construct likelihood mappings and transition probabilities in
+POMDPs [@çatal2020]. Finding better methods for searching the policy
+spaces will likely also be pivotal — @dacosta2020 suggest how the space
+of possible actions could be pruned to decrease search times.
 
-Another key issue is constructing a more rigorous benchmarking system.
+Another key issue is determining a how to inform likelihood and
+transition probabilities in a fashion that is compatible with a clinical
+setting. The present study used the actual transition probabilities of
+the simulated environment and, depending on the simulation run,
+noiseless likelihood mappings. Possibly, simulations of cancer dynamics,
+such as those by @zhang2017, could be used to inform transition
+probabilities, and a clinical model could potentially readjust to
+patient data. The AI implementation of POMDPs has developed literature
+on online learning of the categorical probability distributions needed
+to accurately represent the environment. Even potential information
+gains from learning transition and likelihood probabilities can be
+factored in to decision-making [@smith2022 and @dacosta2020].
+
 In the present paper, the ranges of the baseline range-bounded strategy
-were selected fairly arbitrarily. It produced convincing results during
-initial testing and did manage to control tumor levels for a substantial
-amount of time. However, a systematic method for comparing models is
-necessary, especially considering the difficulty of real-world tests. No
-matter the choice of modeling framework, building a benchmarking could
-help propel modeling work in AT. Given the extreme barriers to
-real-world testing performance testing of patient-specific models,
-maximizing the information that can be extracted from simulation work
-seems crucial. The detailed qualitative account of needed developments
-on the needed developments mathematical modeling of AT dynamics by
-@west2023 could be translated to a set of simulation environments used
-for benchmarking models. Potentially useful simulation scripts already
-exist. For example, @zhang2017 released their simulations on mCRCP
-dynamic. Wrapping existing simulations into environments that can easily
-facilitate actions and observations with simulated agents could be done
-by using an API like the one used in Gymnasium (formerly OpenAI Gym)
-[@towers2024]. This would hopefully minimize friction for non-oncology
-researchers wishing to contribute to the field since it would allow them
-to prioritize improving model performance instead of having to spend
-excessive time deciphering how to construct useful metrics themselves.
+were selected arbitrarily — the chosen range produced managed to control
+tumor states for a substantial amount of time. A systematic method for
+comparing models could ease comparison of models. Choice of modeling
+framework, building a benchmarking could help propel modeling work in
+AT. The work of @west2023 could potentially be translated to a set of
+simulation environments used for benchmarking. Wrapping existing
+simulations into environments that can easily facilitate actions and
+observations with simulated agents could be done by using an API like
+the one used in Gymnasium (formerly OpenAI Gym) [@towers2024]. This
+would hopefully minimize friction for non-oncology researchers wishing
+to contribute to the field by allowing them to prioritize improving
+model performance over spending excessive time deciphering how to
+construct useful metrics themselves.
 
 POMPDs could also be "reverse-engineered" from more complex models,
 which could more easily be trained if a benchmarking suite existed. For
@@ -577,7 +566,10 @@ transparency of the POMPD scheme.
 # Appendix A: In-Depth Description of the AI POMPD Scheme
 
 The canonical implementation of POMDPs in Active Inference requires
-specifying the following categorical probability distributions.
+specifying the following categorical probability distributions. These
+are fundementalt to an agents generative model, since they dictate what
+types of states an agent can infer, what actions it can take and what
+type of observations it can make.
 
 **The likelihood model,** $A$**.** $A$ is typically a set of arrays
 where each array corresponds to a *modality* — a category of
