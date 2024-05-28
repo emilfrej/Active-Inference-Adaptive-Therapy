@@ -7,8 +7,6 @@ date: "`r Sys.Date()` \\clearpage"
 output:
   pdf_document: default
   word_document: default
-  bookdown::pdf_book: null
-  base_format: pdf_document
 bibliography: references.bib
 toc: true
 header-includes: 
