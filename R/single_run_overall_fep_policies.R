@@ -37,7 +37,7 @@ plot <- ggplot(single_trial_full_data, aes(x = timestep, y = tumor_state)) +
   #remove the shape legend title
   guides(shape = guide_legend(title = NULL)) +
   
-  labs(title = "Best Policy at Each Timepoint",
+  labs(title = "",
        x = "Time",
        y = "Tumor and Resistance State") 
 

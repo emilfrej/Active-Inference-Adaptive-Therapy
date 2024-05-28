@@ -172,7 +172,7 @@ probabilities of each state factor, and a desired probability of making certain 
 ## Aim of this Paper
 
 The treatment decisions used in the pilot trial reported by @zhang2017
-were based on a well-informed heuristic about how resistance dynamics
+were based on a well-informed  heuristic about how resistance dynamics
 would develop as a consequence of careful timing of applying and
 withdrawing Abiraterone treatment. However, the actual resistance
 dynamics of each patient weren't explicitly modeled in real-time, and

@@ -21,7 +21,7 @@ plot <- ggplot(fep_components, aes(x = timestep)) +
   labs(y = "Expected Free Energy", x = "Time") +
   
   #title to expected free energy components
-  ggtitle("Expected Free Energy Components for Top Policy") +
+  ggtitle("") +
   
   #remove fill title
   guides(fill = guide_legend(title = NULL)) +
