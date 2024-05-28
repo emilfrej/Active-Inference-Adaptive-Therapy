@@ -1,16 +1,16 @@
 ---
-title: "Actively Inferring Adaptive Therapy: Modifying Partially Observable Markov
-  Decision Processes for Real-Time Treatment Decisions in Cancer"
-author: "Emil Frej Brunbjerg (202105405)"
+title: "Inferring Treatment Resistance Actively: Modifying Partially Observable Markov
+  Decision Processes for Adaptive Therapy"
+author: "Emil Frej Brunbjerg"
 date: "`r Sys.Date()`"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
   bookdown::pdf_book: null
   base_format: pdf_document
 bibliography: references.bib
 toc: true
-abstract: "Cancer remains a leading cause of death globally, with drug resistance
+abstract: \doublespacing Cancer remains a leading cause of death globally, with drug resistance
   accounting for approximately 90% of cancer fatalities. *Adaptive Therapy* (AT) which
   leverages intra-tumoral evolutionary dynamics to control rather than eradicate cancer,
   is a promosing alternative to standard care. This paper investigates if the *Active
@@ -31,13 +31,15 @@ abstract: "Cancer remains a leading cause of death globally, with drug resistanc
   responses, particularily when AI is applied through POMDPs. Additionally, the paper
   indentifies key developments needed before the POMPD scheme can be applied in clinical
   settings, and suggests that developing a rigorous benchmarking suite would propel
-  modelling efforts in AT.\\clearpage"
+  modelling efforts in AT. \clearpage
 header-includes: 
   - \usepackage{setspace}
   - \usepackage{caption}
+indent: true
 ---
 
-\setstretch{3}
+
+\setstretch{2}
 
 \captionsetup[figure]{font=scriptsize}
 
@@ -47,7 +49,7 @@ header-includes:
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.height = 3, fig.width = 5, fig.align = "center")
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 
-
+#, \n Social and Cultural Dynamics, BSc. Cognitive Science, Aarhus University
 
 #load pacakages
 pacman::p_load(tidyverse, ggnewscale, patchwork)
@@ -182,8 +184,8 @@ probability distributions. These describe likelihood mappings between
 signals and specific states of the environment, transition
 probabilities, and a desired probability of making certain observations
 (see appendix A for an in-depth description of how an agents generative
-model is specified by factorizing the joint probability) [@smith2022].
-[^1]
+model is specified by factorizing the joint probability). Solving
+[@smith2022]. [^1]
 
 [^1]: The Python package pymdp [@heins2022] has numerous tutorial
     notebooks for implementing POMPDs in Python. @smith2022 describes
@@ -448,14 +450,6 @@ as POMDPs to model an underlying resistance state that controlled the
 efficacy of cancer treatment, despite the underlying state not producing
 observable signals itself.
 
-Additionally, costs to testing and treating were implemented and could
-be quantitatively integrated using free energy minimization to trade-off
-utility for reductions in uncertainty. Considering that key AT
-reasearches have reported that future models of AT must be able to
-balance drug toxicity, tumor burdens and resistance dynamics
-[@west2023], seeking inspiration in the AI paradigm is potentially
-promising path for future modelling work.
-
 Modified POMPDs were further tested against a range-bounded treatment
 strategy inspired by a pilot clinical trial using AT, and were found to
 outperform the range-bounded strategy substantially. The gap in
@@ -486,20 +480,28 @@ real-time treatment decisions will therefore have to need the capacity
 to model the uncertainty of the environment and account for it in
 decision-making .
 
-Another quality of the AI paradigm is its ability to quantitavely
-incorporate expected utility and unceartinty when selecting actions.
-Basing therapy planning in AI models would blur the line between testing
-and treating. For example, models could correctly believe that two
-patients have exactly the same tumor burden but suggest treatment for
-one patient and not the other. This is a feature, not a bug. If a model
-is certain in its beliefs about one patient's resistance dynamics, the
-expected gain in information will be smaller. Yet if the model is
-uncertain about the resistance dynamics of the other patient, it might
-be worthwhile to treat simply for the information gain. Curiously, this
-could result in two patients with exactly the same tumor burden, but
-only one of them should receive treatment. Factoring in current and
-expected uncertainty would therefore drastically alter how to optimally
-collect real-time data patient data.
+Another quality of the AI paradigm is its ability to quantitatively
+incorporate expected utility and uncertainty in decision-making. In
+doing so, these models blur the line between testing and treating. For
+example, a model could correctly believe that two patients have exactly
+the same tumor burden but suggest treatment for one patient and not the
+other. This is a feature, not a bug. If the model is certain in its
+beliefs about one patient's resistance dynamics, the expected gain in
+information from treating will be small. Yet if the model is uncertain
+about the resistance dynamics of the other patient, it might be
+worthwhile to apply treatment simply for the information gain.
+Curiously, this could result in two patients with exactly the same tumor
+burden, but only one of them should receive treatment. Factoring in
+measures of uncertainty drastically alters how to optimally collect
+real-time data patient data. It would allow for a carefull and
+quantitative reasoning of when to use treatment responses to investigate
+resistance dynamics. Treatment responses were implicitly used as an
+information gathering tool in the pilot trial, @zhang2017 report only
+including patients who showed a substantial drop in PSA after an initial
+round of treating, but models in inspired in AI could carefully and
+quantitatively balance information gathering against other objective
+measures such as drug toxicity, patient well-being, emergence of
+resistance or financial costs.
 
 ## Suggestions for Future Research
 
@@ -648,7 +650,7 @@ knitr::kable(sim_settings_df, col.names = c("Outcome", "Probability"), align = "
 
 ```
 
-# Appendix C: A Dissection decision-making by POMPD
+# Appendix C: A Dissection of Decision-making by POMPD
 
 For each policy, the agent evaluates the expected trajectory of the
 hidden states. These evaluations provide insights into the model's
