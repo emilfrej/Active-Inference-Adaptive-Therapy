@@ -30,7 +30,7 @@ plot <- ggplot(fep_components, aes(x = timestep)) +
   theme(legend.position = "bottom") 
 
 #save the plot
-ggsave("visualizations/fep_components.png", plot, width = 10, height = 5, units = "in", dpi = 300)
+ggsave("../visualizations/fep_components.png", plot, width = 10, height = 5, units = "in", dpi = 300)
 
 
    
