@@ -4,40 +4,18 @@ title: "Inferring Treatment Resistance Actively: Modifying Partially Observable 
 author: "Emil Frej Brunbjerg"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
   bookdown::pdf_book: null
   base_format: pdf_document
 bibliography: references.bib
 toc: true
-abstract: \doublespacing Cancer remains a leading cause of death globally, with drug resistance
-  accounting for approximately 90% of cancer fatalities. *Adaptive Therapy* (AT) which
-  leverages intra-tumoral evolutionary dynamics to control rather than eradicate cancer,
-  is a promosing alternative to standard care. This paper investigates if the *Active
-  Inference* (AI)  *Partially Observable Markov Decision Process* (POMDP) scheme to
-  model and control cancer dynamics in a simulated enviroment inspired by a recent
-  pilot clinical trial that implements AT for metastastic-Castration Resistant Prostate
-  Cancer. The problem of inferring resistance dynamics based on signals of tumor burden
-  motivated the use of AI, but also necesistaed modifying how transition dynamics
-  are specified and evaluated in the POMPD scheme. Intial simulation results suggest
-  that the modification allowed POMDPs to infer changes to resistance dynamics in
-  real-time through observing changes in tumor burden resulting from applying treatment.
-  The modified POMPDs were also tested against a range-bounded treatment strategy
-  inspired by the pilot trial, and found to outperform the range-bounded strategy,
-  particularly under conditions of aggresive tumor growth. Beyond the intially promising
-  simulation results, POMDPs were also found to meet several criteria that have recently
-  been identified as crucial for modelling work in AT. Consequently, this paper argues
-  that the AI paradigm shows promise for improving real-time prediction of treatment
-  responses, particularily when AI is applied through POMDPs. Additionally, the paper
-  indentifies key developments needed before the POMPD scheme can be applied in clinical
-  settings, and suggests that developing a rigorous benchmarking suite would propel
-  modelling efforts in AT. \clearpage
+abstract: \clearpage
 header-includes: 
   - \usepackage{setspace}
   - \usepackage{caption}
 indent: true
 ---
-
 
 \setstretch{2}
 
@@ -66,8 +44,9 @@ medium_col <- "skyblue"
 short_col = "violet"
 
 strat_colors <- c("RB" = rb_col, "Long" = long_col, "Medium" = medium_col, "Short" = short_col)
-contrast_colors <- c("Long Horizon POMPD vs RB" = long_col, "medium_vs_rb" = medium_col, "short_vs_rb" = short_col)
+contrast_colors <- c("Long Horizon POMDP vs RB" = long_col, "medium_vs_rb" = medium_col, "short_vs_rb" = short_col)
 
+#run data wranlging script
 source("ReadInData.R")
 
 ```
@@ -84,7 +63,7 @@ highlight the inefficiency of traditional approaches, [@stanková2019]
 models cancer treatment as a game-theoretic contest between a physician
 and a tumor. In this model, the physician's move in each round is to
 apply a certain treatment to which the cancer adapts. While the game is
-assymetrical—one player is the leader (the physician) and another player
+asymmetrical—one player is the leader (the physician) and another player
 is a follower (the tumor)—the asymmetry is rarely exploited in oncology
 wards. Instead of using the advantage to steer the evolutionary
 pressures placed on tumors, tumors can adapt not only to the current
@@ -105,14 +84,14 @@ fitness costs when evolving mechanisms of drug resistance
 space and resources, drug-sensitive cells should, over time, out-compete
 resistant cells. AT thereby utilizes Darwinian competition to make
 cancer suppress itself, a strategy that potentially could reduce cancer
-to chronic and but controllable disease.
+to a chronic but controllable disease.
 
 ![From Zhang et al. 2023. Panel A shows a typical "Maximal Tolerable
 Dose" treatment protocol. While the initial response in tumor burden is
 promising, a competitive release of resistant cells ensures. Panel B
 shows an AT approach with a small tumor burden. Panel C shows AT with a
 high tumor burden, which has been theorized to further increase the
-suppression of resistance
+suppression of resistant
 cells.](images/Screenshot%202024-05-20%20at%2008.15.19.png){width="300"}
 
 Initial results from an ongoing pilot clinical trial applying AT in a
@@ -121,29 +100,29 @@ patients are promising, showing both lower cumulative dosages and longer
 survival times compared to a similar group of patients receiving
 standard care. The trial utilizes a range-bounded heuristic to make
 treatment decisions: if the blood marker *Prostate-specific Antigen*
-(PSA), a proxy for tumor burden, increases back to pre-trial levels,
+(PSA), a proxy for tumor burden increases back to pre-trial levels,
 Abiraterone treatment is applied until PSA drops to 50% of pre-trial
 levels [@zhang2017].
 
-## POMPDs
+## POMDPs
 
 *Partially Observable Markov Decision Processes* (POMDPs) is a class of
 controller models that model a Markov process —an environment that moves
 through discrete time steps and states, each step of the system only
-depends on states of the prior step. Partial observability refers to the
+depends on the configuration of states in the prior time step. Partial observability refers to the
 fact that these models don't directly observe the actual environment but
 instead observe signals emitted by the environment [@åström1969]. This
-allows POMPDs to differentiate an observed signal from what it
+allows POMDPs to differentiate an observed signal from what it
 "believes" about the actual configuration of states and additionally to
-use a single reward function to trade-off uncertainty for reaching a
+use a single reward function to trade off uncertainty to reach a
 certain goal state [@kaelbling1998].
 
-## Solving POMPDs with Active Inference
+## Solving POMDPs with Active Inference
 
 While POMDPs are typically difficult to solve analytically, various
-approximation exist. One approximation scheme is born out of the
-neuroscience paradigm *Active Inference* (AI) where POMPDs are typically
-used to model an agent's decision-making. AI POMPDs has been used to
+approximations exist. One approximation scheme is born out of the
+neuroscience paradigm *Active Inference* (AI) where POMDPs are typically
+used to model an agent's decision-making. AI POMDPs have been used to
 model psychopathology [@dacosta2020] but also applied to control
 scenarios such as the mountain car problem [@friston2009] and, albeit
 augmented with deep learning, robotics control [@çatal2020]. The
@@ -158,7 +137,7 @@ approximation finds a solution by minimizing two objective functions:
 
 AI implementations of the POMDP scheme have been implemented in MATLAB
 and recently in Python with the Python package *pymdp* [@heins2022 and
-@heins2022a]. AI POMDPs are technically the a joint probability:
+@heins2022a]. AI POMDPs are technically a joint probability:
 
 $$
 p(o,s,u;\phi)
@@ -166,12 +145,10 @@ $$
 
 where $o$ are observations, $s$ are hidden states to be inferred, $u$
 are actions that an agent can take to influence the environment, and
-$\phi$ are the hyperparameters of the model, such as $\alpha$ normally
-used as 'inverse temperature' i.e. how strongly beliefs determines
-action selection. By conditioning on certain observations, the POMDP is
-solvable for Bayes-optimal posterior beliefs at a given time point. This
+$\phi$ are the hyperparameters of the mode. By conditioning on certain observations, the POMDP is
+solvable for Bayes-optimal posterior beliefs at a given time point given a specified generative model – the model an agent uses to generate predictions about future observations, states and actions. This
 yields a set of posterior beliefs about the current state of each *state
-factor -* the types of possible states in the environment. A posterior
+factor -* the types of possible states in the environment -* a posterior
 probability distributions over what *policies*, possible courses of
 actions are most likely to achieve specified preferences while keeping
 expected uncertainty as low as possible. As an example, a POMDP could
@@ -179,19 +156,18 @@ model the joint probability of observing a noisy signal of a particular
 tumor burden in a patient, an actual underlying tumor burden, and the
 course of action that is most likely to bring the tumor burden down. By
 modeling, actions, states, and observations as discrete events, the
-joint probability is can factorized into multiple categorical
-probability distributions. These describe likelihood mappings between
+joint probability can be factorized into multiple categorical
+probability distributions. These distributions describe likelihood mappings between
 signals and specific states of the environment, transition
-probabilities, and a desired probability of making certain observations
-(see appendix A for an in-depth description of how an agents generative
-model is specified by factorizing the joint probability). Solving
+probabilities of each state factor, and a desired probability of making certain observations
+
 [@smith2022]. [^1]
 
 [^1]: The Python package pymdp [@heins2022] has numerous tutorial
-    notebooks for implementing POMPDs in Python. @smith2022 describes
-    the process of constructing POMPDs for different scenarios in
+    notebooks for implementing POMDPs in Python. @smith2022 describes
+    the process of constructing POMDPs for different scenarios in
     detail, albeit in MATLAB, and @dacosta2020 provides an in-depth
-    mathematical account of POMPDs in Active inference.
+    mathematical account of POMDPs in Active inference.
 
 ## Aim of this Paper
 
@@ -201,9 +177,9 @@ would develop as a consequence of careful timing of applying and
 withdrawing Abiraterone treatment. However, the actual resistance
 dynamics of each patient weren't explicitly modeled in real-time, and
 thus not used in treatment decisions. This paper primarily investigates
-whether the AI implementation of POMDPs can model and control degree of
+whether the AI implementation of POMDPs can model and control the degree of
 treatment resistance of individual cancer patients in real-time — hoping
-that this strategy eventually can be applied in a clinical setting.
+that this strategy can eventually be applied in a clinical setting.
 
 # Analysis
 
@@ -211,13 +187,13 @@ that this strategy eventually can be applied in a clinical setting.
 
 To investigate the appropriateness of the AI implementation of the POMDP
 scheme, multiple simulations of a clinical setting inspired by the pilot
-clinical trial were run. To comply with the canonical AI POMPD scheme
+clinical trial were run. To comply with the canonical AI POMDP scheme
 discrete states and and time steps were used. Each simulation run
 simulated maximally of 200 time-steps. At each time-step, an agent had
 to keep a virtual cancer patient alive by deciding whether to apply a
 treatment based on a signal of the tumor burden. The signal could be
 observed at each time point, and treatment decisions were made by
-solving a slightly modified AI POMPD. The features of the environment
+solving a slightly modified AI POMDP. The features of the environment
 were inspired by the use of PSA testing and Abiraterone treatment in the
 pilot trial [@zhang2017]. In the simulations, the patient's *tumor state
 factor* determined whether they survived to the next time-step. If the
@@ -232,15 +208,13 @@ state 0 out of 5. For each round of treatment application, the
 resistance state had a fixed risk of increasing. The only remedy to the
 increasing resistance states, beyond favorable bouts of stochasticity,
 was to withdraw treatment which would allow the resistance state factor
-to lower. Inspired by the work of [@hansen2020], the patient being
-higher tumor states increased the chance of lowering resistance.
-
+to lower. Inspired by the work of [@hansen2020], if the patient is in
+higher tumor states the chance of lowering resistance states was increased. 
 ## Modifications to the POMDP Scheme
 
-Typically when constructing AI POMDPs, different state factors (i.e
-types of states) such as the resistance factor and tumor factors are not
+Typically when constructing AI POMDPs, different state factors (i.e., types of states) such as the resistance factor and tumor factors are not
 modeled to affect each other directly. Instead, the interactions
-resulting from of particular specific states across state types are
+resulting from particular configurations of states across state types are
 modeled as leading to different observations. This means that
 interactions between types of states would be coded in the likelihood
 distribution.
@@ -249,13 +223,13 @@ This setup was deemed incompatible with the environment that the agents
 had to model since it wouldn't let agents infer how changes in
 resistance state factor should influence the expected transition
 probabilities of the tumor state factor. Therefore, custom changes were
-made to pymdp to allow POMPDs to infer "occluded" state factors - state
-factors don't produce signals themselves (e.g. the resistance state).
-The state of the occluded state factor need to be inferred, through its
+made to pymdp to allow POMDPs to infer "occluded" state factors - state
+factors that don't produce signals themselves (e.g. the resistance state).
+The state of the occluded state factor instead needed to be inferred, through its
 effects on downstream state factors that generate signals (e.g. the
 tumor state).
 
-Specifically, modifications were made to the structure of the agents
+Specifically, modifications were made to the structure of the agent’s
 beliefs about the environment's transition probabilities Usually,
 three-dimensional *tensors* describe expected transition probabilities
 within a state factor. This means a tensor for a type of state typically
@@ -274,7 +248,7 @@ for the transition probabilities between tumor states, multiple tensors
 of tumor transition probabilities were specified, where each tensor
 corresponded to a specific resistance level. This modification to the
 generative model necessitated taking an average of across these tensors
-weighted by the posterior probabilities for each resistance state at
+weighted by the posterior probabilities for each resistance state at a
 given time point. This amounts to calculating the expected transition
 probabilities between tumor states conditional on a set of beliefs about
 the resistance states. This modification strategy was repeated for the
@@ -288,28 +262,26 @@ arbitrarily complex dependencies between states.
 ## Exploratory Simulation
 
 An exploratory simulation was conducted, where for each run an agent
-instantiated as a modified POMPD controlled whether to treat and test.
-Its received the following signals:
+instantiated as a modified POMDP controlled whether to treat and test.
+It received the following signals:
 
 -   A noiseless signal of whether the patient was alive.
 
 -   A noiseless signal of whether it was applying tests.
 
--   A noiseless signal of whether it was applying treatment
+-   A noiseless signal of whether it was applying treatment.
 
--   A noised signal of the tumor state and it was only recieved if tests
-    were being applied.
+-   If testing was applied at the time step, the agent received a noised signal of the tumor state factor.
 
-The agent's prior preferences were skewed heavily against observing a
-dead patient, somewhat against treating, and slightly against testing.
-This was done to simulate the cost to both treating and testing. This
+The agent's prior preferences were heavily skewed against observing a
+dead patient, somewhat against observing treating, and slightly against observing testing.
+This was done to simulate the cost of both treating and testing. This
 means that the agent had to balance the cost of its actions while
-considering the potential information gain of each choice. The costs of
-treating and testing were introduced to investigate whether the POMPD
+considering the potential information gain from each choice. These costs were introduced to investigate whether the POMDP
 scheme could potentially be used to strike a balance between drug
 toxicity, and tumor burden while optimizing real-time data collection as
 desired by key researches in AT [@west2020]. The model was further
-handicapped by noising the tumor signal. This means that the resistance
+handicapped by noising the tumor signal, meaning that the resistance
 state, which had to be inferred through the tumor signal, was doubly
 obfuscated.
 
@@ -317,7 +289,7 @@ However, the agent's generative model did perfectly map the expected
 noise in the tumor signal, and its initial expected transition
 probabilities were identical to the actual transition probabilities of
 the environment. Additionally, the agent was given uniform priors over
-initial states, meaning it had no knowledge of the configuration of
+initial states, meaning it had no information on the configuration of
 states at the beginning of each run. The same set of predetermined
 policies that considered the next `r num_policies` time-steps were
 evaluated at each step. This limited set of policies was done to ease
@@ -355,54 +327,53 @@ resistance state at each time-point (see Fig. 3) shows that its beliefs
 about the resistance state generally follow the development of the
 actual resistance state despite the lack of direct signal.
 
-```{r res beliefs, fig.cap="Agents beliefs about the patient's resistance  state at every timepoint. Size and color of circles indicate the probability that the agent assigns to each value of the state at a given time-step."}
+```{r res beliefs, fig.cap="Agents beliefs about the patient's resistance state at every timepoint. Size and color of circles indicate the probability that the agent assigns to each value of the state at a given time-step."}
 
 source("resistance_beliefs_plot.R") 
 plot
 
-
 ```
 
-In summary, the modification to POMPD structure appears to have allowed
+In summary, the modification to the POMDP structure appears to have allowed
 the agent to infer the occluded resistance states in real-time. While
 the results are initially promising, the particular agent did make
 questionable choices regarding the timing of treatment. It's
 decision-making is dissected in-depth in Appendix C.
 
-## Performance of POMPDs against a Range-Bounded Strategy
+## Performance of POMDPs against a Range-Bounded Strategy
 
-Several agents instantiated as modified POMPDs were tested against a
+Several agents instantiated as modified POMDPs were tested against a
 range-bounded strategy. This was done to benchmark the performance of
-POMPDs against a strategy inspired by the treatment protocol used in the
+POMDPs against a strategy inspired by the treatment protocol used in the
 pilot clinical trial [@zhang2017]. The generative models used were
 simplified for ease of computation — they only observed a noiseless
 signal of the tumor state and whether treatment was being applied at
 every time-step. They were also only given prior preferences for
 observations of tumor states. The preferences were uniform over all
 survivable observations of survivable tumor burdens, and the probability
-of the observing the maximal burden was set to 0. The following three
+of observing the maximal burden was set to 0. The following three
 agents were tested:
 
--   A short policy horizon POMPD that could consider a block of treating
+-   A short policy horizon POMDP that could consider a block of treating
     or not treating for the next three steps.
--   A medium policy horizon POMPD that could consider two blocks of
+-   A medium policy horizon POMDP that could consider two blocks of
     treating or not treating for three steps, yielding a total horizon
     of 6 timesteps.
--   A long policy horizon POMPD that could consider four blocks of
+-   A long policy horizon POMDP that could consider four blocks of
     treating or not treating for three steps, resulting in a total
     horizon of 12 steps.
 
 The agents were benchmarked on four different tumor growth rates, to
-investigate how a cancer's aggresiveness would affect the agent's
-ability to keep patients alive. The tested tumor growth rates were 0.1,
+investigate how a cancer's aggressiveness would affect the agent's
+ability to keep a patient alive. The tested tumor growth rates were 0.1,
 0.3, 0.5, and 0.7 probability of an increase in tumor state at each
-timestep. For each setting, 100 simulation were run. For each run, the
+timestep. For each setting, 100 simulations were run. For each run, the
 environment was predetermined by generating 200 outcome variables for
 each combination of tumor state, resistance state, and treatment state
 to ensure comparability between the tested agents and the RB strategy at
 the level of each run.
 
-```{r sim lengths, fig.cap= "Simulated observed patient survival times for each POMPD agent and the range-bounded strategy."}
+```{r sim lengths, fig.cap= "Simulated observed patient survival times for each POMDP agent and the range-bounded strategy."}
 #print densities
 source("sim_lengths_densities_full.R")
 
@@ -419,19 +390,19 @@ At the lowest tumor growth rate, nearly all the runs reached the maximal
 length (see Fig. 4). On the other runs, the long horizon model also
 appears to be slightly outperforming the others. Contrasts as the
 percentage difference in survival from switching from the baseline
-RB-strategy to the long horizon POMPD are computed for each run (see Fig
+RB-strategy to the long horizon POMDP are computed for each run (see Fig
 5.).
 
-```{r constrasts, fig.cap="Change in percent of between the range-bound approach and the longest horizon POMPD for different tumor growth rates."}
+```{r conscontrastsg.cap="Change in percent of between the range-bound approach and the longest horizon POMDP for different tumor growth rates."}
 source("contrasted_sim_length_max_horizon.R")
 
 plot
 
 ```
 
-In the 100 runs with a 0.1 risk of tumor growth, the long-horizon POMPD
+In the 100 runs with a 0.1 risk of tumor growth, the long-horizon POMDP
 seems to perform similarly to the RB strategy. However, as the tumor
-growth risk increases, the POMPD agent increasingly shows large
+growth risk increases, the POMDP agent increasingly shows large
 percentage improvements compared to the RB strategy. Potentially a
 consequence of a greater need for proactive action when tumor dynamics
 accelerate, which in turn could favor models that explicitly model how
@@ -445,29 +416,28 @@ This project tested a modification to how POMDPs are typically
 implemented in AI to investigate whether POMDPs could infer and control
 state factors that don't emit signals, but instead influence other state
 factors. This was accomplished. In a simulated environment designed to
-mimic the dynamics of AT, the modification allowed agents instantiated
-as POMDPs to model an underlying resistance state that controlled the
-efficacy of cancer treatment, despite the underlying state not producing
-observable signals itself.
+mimic the dynamics of AT, the modification allowed agents, instantiated
+as POMDPs, to inferan underlying resistance states that modulated the
+efficacy of cancer treatment, despite the underlying resistance states not producing
+observable signals themselves
 
-Modified POMPDs were further tested against a range-bounded treatment
+Modified POMDPs were further tested against a range-bounded treatment
 strategy inspired by a pilot clinical trial using AT, and were found to
-outperform the range-bounded strategy substantially. The gap in
-performance was largest in simulations of aggressive tumor growth rates
+outperform the range-bounded strategy substantially. The performance gap is largest in simulations of aggressive tumor growth rates
 and for agents with an ability to consider longer future courses of
 action. These results in concert with a recent review of needed
 developments in AT models [@west2023] underscore the potential of
-drawing inspiration in the AI paradigm for real-time planning of
+drawing inspiration from the AI paradigm for real-time planning of
 treatment and testing decisions. Perhaps the modified POMDP could be a
-useful model architecture that,with refinement, could come to improve
+useful model architecture that, with refinement, could come to improve
 real-time patient-specific therapy treatment decisions.
 
-This paper implemented a POMPD capable of combining multiple actions,
+This paper implemented a POMDP capable of combining multiple actions,
 i.e. treating and testing. Only computation and our ability to specify
 likelihood and transition probabilities prohibit constructing more
-complex generative models. Potentially opening the door for combining
-multi-drug therapies with multiple types of testing and increasingly
-detailed models of real-time tumor biology — all of which are desiderata
+complicated generative models. Potentially opening the door to combining
+multi-drug therapies with multiple types of testing embedded in increasingly
+detailed  real-time models of tumor biology — all of which are desiderata
 reported by @west2023.
 
 But to avoid having to figure out how quarks and leptons might interact
@@ -478,7 +448,7 @@ AT, abstracting away physical mechanisms as random fluctuations inherent
 to the modeled environment will eventually be necessary. Models for
 real-time treatment decisions will therefore have to need the capacity
 to model the uncertainty of the environment and account for it in
-decision-making .
+decision-making.
 
 Another quality of the AI paradigm is its ability to quantitatively
 incorporate expected utility and uncertainty in decision-making. In
@@ -492,22 +462,22 @@ about the resistance dynamics of the other patient, it might be
 worthwhile to apply treatment simply for the information gain.
 Curiously, this could result in two patients with exactly the same tumor
 burden, but only one of them should receive treatment. Factoring in
-measures of uncertainty drastically alters how to optimally collect
-real-time data patient data. It would allow for a carefull and
+measures of uncertainty drastically alter how to optimally collect
+real-time data patient data. It would allow for  careful and
 quantitative reasoning of when to use treatment responses to investigate
 resistance dynamics. Treatment responses were implicitly used as an
 information gathering tool in the pilot trial, @zhang2017 report only
 including patients who showed a substantial drop in PSA after an initial
-round of treating, but models in inspired in AI could carefully and
-quantitatively balance information gathering against other objective
-measures such as drug toxicity, patient well-being, emergence of
+round of treating, but models inspired by AI could carefully and
+quantitatively balance information gathering against other objectives
+such as drug toxicity, patient well-being, delaying the emergence of
 resistance or financial costs.
 
 ## Suggestions for Future Research
 
 While the results are initially promising, the simple nature of the
 simulated clinical setting prohibits drawing any strong conclusions
-about the promise of using AI POMPDs in a clinical setting.
+about the prospect of using AI POMDPs in a clinical setting.
 
 To further investigate whether POMDPs could viably be applied in a
 clinical setting, multiple problems will need to be solved. For example,
@@ -521,7 +491,7 @@ POMDPs [@çatal2020]. Finding better methods for searching the policy
 spaces will likely also be pivotal — @dacosta2020 suggest how the space
 of possible actions could be pruned to decrease search times.
 
-Another key issue is determining a how to inform likelihood and
+Another key issue is determining how to inform likelihood and
 transition probabilities in a fashion that is compatible with a clinical
 setting. The present study used the actual transition probabilities of
 the simulated environment and, depending on the simulation run,
@@ -532,14 +502,11 @@ patient data. The AI implementation of POMDPs has developed literature
 on online learning of the categorical probability distributions needed
 to accurately represent the environment. Even potential information
 gains from learning transition and likelihood probabilities can be
-factored in to decision-making [@smith2022 and @dacosta2020].
+factored into decision-making [@smith2022 and @dacosta2020].
 
 In the present paper, the ranges of the baseline range-bounded strategy
 were selected arbitrarily — the chosen range produced managed to control
-tumor states for a substantial amount of time. A systematic method for
-comparing models could ease comparison of models. Choice of modeling
-framework, building a benchmarking could help propel modeling work in
-AT. The work of @west2023 could potentially be translated to a set of
+tumor states for a substantial amount of time. A systematic benchmarking framework in AT  could ease the comparison of future models. The work of @west2023 could potentially be translated to a set of
 simulation environments used for benchmarking. Wrapping existing
 simulations into environments that can easily facilitate actions and
 observations with simulated agents could be done by using an API like
@@ -549,28 +516,28 @@ to contribute to the field by allowing them to prioritize improving
 model performance over spending excessive time deciphering how to
 construct useful metrics themselves.
 
-POMPDs could also be "reverse-engineered" from more complex models,
+POMDPs could also be "reverse-engineered" from more complex models,
 which could more easily be trained if a benchmarking suite existed. For
 example, if a black-box model, like a neural network, can be shown to
-successfully control treatments, fitting a POMPD to its behavior would
-probably be a fairly straight-forward endeavor since AI POMPDs often
+successfully control treatments, fitting a POMDP to its behavior would
+probably be a fairly straight-forward endeavor since AI POMDPs often
 have been used in computational psychiatry to model human
 decision-making. The same techniques could potentially allow us to
 translate otherwise non-transparent models into the structure of a
-POMPD, thus combining the performance of the black-box model with the
-transparency of the POMPD scheme.
+POMDP, thus combining the performance of the black-box model with the
+transparency of the POMDP scheme.
 
 # References
 
 ::: {#refs}
 :::
 
-# Appendix A: In-Depth Description of the AI POMPD Scheme
+# Appendix A: In-Depth Description of the AI POMDP Scheme
 
 The canonical implementation of POMDPs in Active Inference requires
 specifying the following categorical probability distributions. These
-are fundementalt to an agents generative model, since they dictate what
-types of states an agent can infer, what actions it can take and what
+are fundamental to an agent's generative model, since they dictate what
+types of states an agent can infer, what actions it can take, and what
 type of observations it can make.
 
 **The likelihood model,** $A$**.** $A$ is typically a set of arrays
@@ -594,8 +561,8 @@ state, a dimension for the current state, and a third dimension with the
 length of each action that would influence the transition probabilities
 of the state.
 
-**A prior over preferred states** $C$**.** A particularity of AI POMPDs
-is that utility is the probability for making certain observations. It
+**A prior over preferred states** $C$**.** A particularity of AI POMDPs
+is that utility is the probability of making certain observations. It
 can be considered the states that the system attempts to "self-organize"
 around. This method of modeling preferences can superficially seem odd,
 but its benefits will be clear later.
@@ -604,7 +571,7 @@ but its benefits will be clear later.
 probabilities specifying initial beliefs. In continuation with the
 example above, $D$ could specify how probable a model believes different
 levels of tumor burden are before making any observations. When AI
-POMPDs are solved on multiple time steps, the posterior beliefs of the
+POMDPs are solved on multiple time steps, the posterior beliefs of the
 preceding time step replace $D$.
 
 # Appendix B: Simulation parameters
@@ -613,7 +580,7 @@ The transition dynamics of the simulated environments were.
 
 Exploratory simulation:
 
-```{r sim params, fig.cap= "Table of Simulation parameters used. R correponds to specific resistance States and T to specific tumor states. For example \"T2 Chance of Resistance Decrease\" denotes the probability of the resistance state decreasing given that the resistance state was 2 (and treatment was applied)."}
+```{r sim params, fig.cap= "Table of Simulation parameters used. R corresponds to specific resistance States and T to specific tumor states. For example \"T2 Chance of Resistance Decrease\" denotes the probability of the resistance state decreasing given that the resistance state was 2 (and treatment was applied)."}
 # construct vectors of probabilites used in simulation and a vector of var names to make df. This is used print a kable table
 tumor_increase_prob = 0.3
 resistance_increase_prob = 0.5 
@@ -647,10 +614,9 @@ knitr::kable(sim_settings_df, col.names = c("Outcome", "Probability"), align = "
 
 
 
-
 ```
 
-# Appendix C: A Dissection of Decision-making by POMPD
+# Appendix C: A Dissection of Decision-making by POMDP
 
 For each policy, the agent evaluates the expected trajectory of the
 hidden states. These evaluations provide insights into the model's
