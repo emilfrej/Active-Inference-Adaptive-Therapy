@@ -2,7 +2,7 @@
 This is a term project for the Social and Cultural Dynamics course for the BSc. in Cognitive Science at Aarhus University. 
 
 ## Academic Goal of this project
-Investigate whether Active Inference can be used to plan a specific type of cancer therapy known as [adaptive therapy](https://www.sciencedirect.com/science/article/pii/S1040842823002809). I'm fairly satisfied with the resulting term paper, but do note that course regulations, especially a nasty character count, forced my hand in many editorial choices.
+Investigate whether Active Inference can be used to plan a specific type of cancer therapy known as [adaptive therapy](https://www.sciencedirect.com/science/article/pii/S1040842823002809). I'm fairly satisfied with the resulting term paper, but do note that course regulations, for example rules character counts, forced my hand in many editorial choices.
 
 ## Personal Ambitions
 I mainly did this project to learn more about Active Inferences. I figured applying it to a new domain would force me to properly understand the nuts and bolts of the paradigm. 
